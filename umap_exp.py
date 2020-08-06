@@ -8,7 +8,7 @@ import pandas as pd
 import bokeh.plotting as bk
 
 from pd_extras.utils.dataframe_with_info import DataFrameWithInfo, copy_df_info_with_new_df
-from plotting.utils.umap.umap_functions import get_umap_embeddings, plot_umap
+from .umap_functions import get_umap_embeddings, plot_umap
 
 logger = logging.getLogger(__name__)
 logger.setLevel('DEBUG')

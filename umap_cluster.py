@@ -5,8 +5,8 @@ import numpy as np
 from hdbscan import HDBSCAN
 
 from pd_extras.utils.dataframe_with_info import DataFrameWithInfo
-from plotting.utils.umap.umap_exp import UmapExperiment
-from plotting.utils.umap.umap_metrics import tanimoto_gower
+from .umap_exp import UmapExperiment
+from .umap_metrics import tanimoto_gower
 
 logger = logging.getLogger(__name__)
 logger.setLevel('DEBUG')

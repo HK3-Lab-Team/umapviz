@@ -9,9 +9,9 @@ from bokeh import palettes
 import bokeh.plotting as bk
 import bokeh.transform
 
-from plotting.utils.plot_settings import MARKERS_DICT
+from medplot.utils.plot_settings import MARKERS_DICT
 from pd_extras.utils.dataframe_with_info import DataFrameWithInfo
-from plotting.utils.bokeh_boxplot import get_hover_tool
+from medplot.utils.bokeh_boxplot import get_hover_tool
 
 
 def _get_specific_marker_by_keys(partition_id_keys: Tuple[int],
@@ -603,7 +603,7 @@ if __name__ == '__main__':
     #     ['consolidations_encoded', 'ground_glass_encoded', 'crazy_paving_encoded'])
     # df_correct.metadata_cols = set(df_correct.metadata_cols)
 
-    from plotting.utils.umap import umap_functions
+    from medplot.utils.umap import umap_functions
 
     train_umap_data, train_notna_full_features_df, \
     test_umap_data, test_notna_full_features_df = \

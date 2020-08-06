@@ -10,7 +10,7 @@ from bokeh import palettes
 import bokeh.plotting as bk
 
 from pd_extras.utils.dataframe_with_info import DataFrameWithInfo, copy_df_info_with_new_df
-from plotting.utils.umap.umap_plot import UmapBokeh
+from medplot.utils.umap.umap_plot import UmapBokeh
 
 
 def prepare_umap_data(df_info: DataFrameWithInfo, col_list: Tuple = None, not_nan_percentage_threshold=0.9,
