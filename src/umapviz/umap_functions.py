@@ -1,19 +1,15 @@
 import logging
-from typing import Tuple, Union, Dict
-import numpy as np
-import sklearn.model_selection
-
-import umap
+from typing import Dict, Tuple, Union
 
 import bokeh
-from bokeh import palettes
 import bokeh.plotting as bk
+import numpy as np
+import sklearn.model_selection
+import umap
+from bokeh import palettes
+from pd_extras.dataframe_with_info import DataFrameWithInfo, copy_df_info_with_new_df
 
-from pd_extras.utils.dataframe_with_info import (
-    DataFrameWithInfo,
-    copy_df_info_with_new_df,
-)
-from medplot.utils.umap.umap_plot import UmapBokeh
+from .umap_plot import UmapBokeh
 
 
 def prepare_umap_data(

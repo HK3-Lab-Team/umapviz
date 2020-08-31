@@ -1,10 +1,11 @@
-import types
 import logging
-from typing import Tuple, List, Union, Dict, Any
+import types
+from typing import Any, Dict, List, Tuple, Union
+
 import numpy as np
 from hdbscan import HDBSCAN
+from pd_extras.dataframe_with_info import DataFrameWithInfo
 
-from pd_extras.utils.dataframe_with_info import DataFrameWithInfo
 from .umap_exp import UmapExperiment
 from .umap_metrics import tanimoto_gower
 

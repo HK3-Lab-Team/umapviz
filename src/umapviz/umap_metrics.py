@@ -1,8 +1,7 @@
 import numba as nb
 import numpy as np
-from umap.distances import rogers_tanimoto
 from numpy.linalg import norm
-
+from umap.distances import rogers_tanimoto
 
 # -------------------------------------------
 # https://github.com/numba/numba/issues/1269

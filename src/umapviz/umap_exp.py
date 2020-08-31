@@ -1,16 +1,17 @@
-import types
 import logging
-from typing import Tuple, List, Union, Dict, Any, Iterator
-import numpy as np
-import sklearn
+import types
 from dataclasses import dataclass
-import pandas as pd
-import bokeh.plotting as bk
+from typing import Any, Dict, Iterator, List, Tuple, Union
 
-from pd_extras.utils.dataframe_with_info import (
+import bokeh.plotting as bk
+import numpy as np
+import pandas as pd
+import sklearn
+from pd_extras.dataframe_with_info import (
     DataFrameWithInfo,
     copy_df_info_with_new_df,
 )
+
 from .umap_functions import get_umap_embeddings, plot_umap
 
 logger = logging.getLogger(__name__)

@@ -1,17 +1,42 @@
 import copy
-from typing import Tuple, Union, Dict
-import pandas as pd
-import numpy as np
+from typing import Dict, Tuple, Union
 
 import bokeh
-from bokeh.models import ColumnDataSource
-from bokeh import palettes
 import bokeh.plotting as bk
 import bokeh.transform
+import numpy as np
+import pandas as pd
+from bokeh import palettes
+from bokeh.models import ColumnDataSource
+from pd_extras.dataframe_with_info import DataFrameWithInfo
 
-from medplot.utils.plot_settings import MARKERS_DICT
-from pd_extras.utils.dataframe_with_info import DataFrameWithInfo
-from medplot.utils.bokeh_boxplot import get_hover_tool
+MARKERS_DICT = {
+    0: {0: "circle", 1: "circle_cross"},
+    1: {0: "diamond_cross", 1: "diamond"},
+    2: {0: "asterisk", 1: "square_cross"},
+}
+
+
+def get_hover_tool(
+    tooltip_feats: Tuple = (), tooltips_list=None
+) -> bokeh.models.tools.HoverTool:
+    # Adding HOVER tools
+    hover = bokeh.models.tools.HoverTool()
+    if tooltips_list is None:
+        features_hover_list = set(tooltip_feats)
+        # Create the list of tuples as hover tooltips with the coordinates as first tooltip
+        tooltips_list = [
+            ("(x,y)", "($x, $y)"),
+        ]
+        for feat in features_hover_list:
+            # The brackets are needed by bokeh for features with whitespaces
+            feat_with_brackets = "{" + str(feat) + "}"
+            # Append the required feat
+            tooltips_list.append((f"{feat}", f"@{feat_with_brackets}"))
+    # Add tooltips to plot
+    hover.tooltips = tooltips_list
+
+    return hover
 
 
 def _get_specific_marker_by_keys(
@@ -718,8 +743,11 @@ class UmapBokeh:
 
 if __name__ == "__main__":
     import logging
-    from pd_extras.utils.dataframe_with_info import DataFrameWithInfo
-    from pd_extras.utils.dataframe_with_info import import_df_with_info_from_file
+
+    from pd_extras.utils.dataframe_with_info import (
+        DataFrameWithInfo,
+        import_df_with_info_from_file,
+    )
 
     logging.basicConfig(
         format="%(asctime)s \t %(levelname)s \t Module: %(module)s \t %(message)s ",
