@@ -1,7 +1,0 @@
-bokeh
-numba
-numpy
-hdbscan
-sklearn
-pandas
-umap-learn
