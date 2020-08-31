@@ -35,6 +35,7 @@ install_requires = [
     "hdbscan",
     "umap-learn",
 ]
+test_requires = ["pytest"]
 
 setuptools.setup(
     name="umapviz",
@@ -47,6 +48,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/HK3-Lab-Team/umapviz/",
     install_requires=install_requires,
+    tests_require=test_requires,
+    extras_require={"testing": test_requires},
     packages=setuptools.find_packages("src", exclude=["tests"]),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -59,6 +62,7 @@ setuptools.setup(
     package_dir={"": "src"},
     include_package_data=True,
     entry_points={},
+    test_suite="pytest",
     zip_safe=True,
     python_requires=">=3.6",
 )
