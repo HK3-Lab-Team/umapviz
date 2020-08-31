@@ -43,7 +43,9 @@ def np_min(array, axis):
 
 
 @nb.njit()
-def gower_dist_categorical(a_cat: np.ndarray, b_cat: np.ndarray, weights: np.ndarray) -> np.float:
+def gower_dist_categorical(
+    a_cat: np.ndarray, b_cat: np.ndarray, weights: np.ndarray
+) -> np.float:
     """
     Calculates the Gower Distance for nominal categorical features
     WARNING: Do not use with ordinal categorical features
@@ -56,15 +58,15 @@ def gower_dist_categorical(a_cat: np.ndarray, b_cat: np.ndarray, weights: np.nda
     Returns:
         np.float -- gower distance of categorical features
     """
-    gower_cat = np.where(a_cat == b_cat,
-                         np.zeros_like(a_cat),
-                         np.ones_like(a_cat))
+    gower_cat = np.where(a_cat == b_cat, np.zeros_like(a_cat), np.ones_like(a_cat))
     gower_cat = np.multiply(weights, gower_cat).sum()
     return gower_cat
 
 
 @nb.njit()
-def gower_dist_numerical_old(a_num: np.ndarray, b_num: np.ndarray, weights: np.ndarray) -> np.float:
+def gower_dist_numerical_old(
+    a_num: np.ndarray, b_num: np.ndarray, weights: np.ndarray
+) -> np.float:
     """
     Calculates the Gower Distance for numerical features
 
@@ -83,8 +85,9 @@ def gower_dist_numerical_old(a_num: np.ndarray, b_num: np.ndarray, weights: np.n
     min_values = np_min(M, axis=0)  # min per feature
     ranges = np.zeros_like(a_num)
     feat_with_range = max_values != 0.0
-    ranges[feat_with_range] = \
-        1 - (min_values[feat_with_range] / max_values[feat_with_range])
+    ranges[feat_with_range] = 1 - (
+        min_values[feat_with_range] / max_values[feat_with_range]
+    )
     # normalise between 0 and 1
     M[:, feat_with_range] /= max_values[feat_with_range]
     # Calculate Gower Distance
@@ -97,11 +100,14 @@ def gower_dist_numerical_old(a_num: np.ndarray, b_num: np.ndarray, weights: np.n
 
 
 @nb.njit()
-def tanimoto_gower_old(a: np.ndarray, b: np.ndarray,
-                       boolean_features: np.ndarray = None,
-                       categorical_features: np.ndarray = None,
-                       numerical_features: np.ndarray = None,
-                       feature_weights: np.ndarray = None) -> np.float:
+def tanimoto_gower_old(
+    a: np.ndarray,
+    b: np.ndarray,
+    boolean_features: np.ndarray = None,
+    categorical_features: np.ndarray = None,
+    numerical_features: np.ndarray = None,
+    feature_weights: np.ndarray = None,
+) -> np.float:
     """Combined UMAP metric for heterogeneous typed features.
     The metric distance is obtained as the product
     (L2 norm) of the vectors resulting from the
@@ -149,8 +155,7 @@ def tanimoto_gower_old(a: np.ndarray, b: np.ndarray,
 
     # Complete Gower Distance in case both Numerical and Categorical features are provided
     if catf_in and numf_in:
-        weights = feature_weights[np.hstack(
-            (categorical_features, numerical_features))]
+        weights = feature_weights[np.hstack((categorical_features, numerical_features))]
         gower_dist = (gw_cat_dist + gw_num_dist) / weights.sum()
     else:
         if catf_in:
@@ -168,8 +173,12 @@ def tanimoto_gower_old(a: np.ndarray, b: np.ndarray,
 
 @nb.njit()
 def gower_dist_numerical(
-        a_num: np.ndarray, b_num: np.ndarray,
-        weights: np.ndarray, min_vals: np.ndarray, max_vals: np.ndarray) -> np.float:
+    a_num: np.ndarray,
+    b_num: np.ndarray,
+    weights: np.ndarray,
+    min_vals: np.ndarray,
+    max_vals: np.ndarray,
+) -> np.float:
     """Calculates the Gower Distance for numerical features
 
     Arguments:
@@ -189,7 +198,7 @@ def gower_dist_numerical(
     M = np.vstack((a_num, b_num))
     # subtracting min set to 0 var with no range
     M[:, feat_w_range] -= min_vals[feat_w_range]  #
-    M[:, feat_w_range] /= (ranges[feat_w_range])
+    M[:, feat_w_range] /= ranges[feat_w_range]
     # Calculate Gower Distance
     M = M[:, feat_w_range]
     gower_num = np.abs(M[1, :] - M[0, :])
@@ -209,13 +218,16 @@ def rogers_tanimoto_weighted(x, y, weights: np.ndarray):
 
 
 @nb.njit()
-def tanimoto_gower(a: np.ndarray, b: np.ndarray,
-                   min_vals: np.ndarray,
-                   max_vals: np.ndarray,
-                   boolean_features: np.ndarray = None,
-                   categorical_features: np.ndarray = None,
-                   numerical_features: np.ndarray = None,
-                   feature_weights: np.ndarray = None) -> np.float:
+def tanimoto_gower(
+    a: np.ndarray,
+    b: np.ndarray,
+    min_vals: np.ndarray,
+    max_vals: np.ndarray,
+    boolean_features: np.ndarray = None,
+    categorical_features: np.ndarray = None,
+    numerical_features: np.ndarray = None,
+    feature_weights: np.ndarray = None,
+) -> np.float:
     """
     Combined UMAP metric for heterogeneous typed features.
     The metric distance is obtained as the product
@@ -294,13 +306,16 @@ def tanimoto_gower(a: np.ndarray, b: np.ndarray,
 
 
 @nb.njit()
-def tanimoto_gower_no_bool_weights(a: np.ndarray, b: np.ndarray,
-                                   min_vals: np.ndarray,
-                                   max_vals: np.ndarray,
-                                   boolean_features: np.ndarray = None,
-                                   categorical_features: np.ndarray = None,
-                                   numerical_features: np.ndarray = None,
-                                   feature_weights: np.ndarray = None) -> np.float:
+def tanimoto_gower_no_bool_weights(
+    a: np.ndarray,
+    b: np.ndarray,
+    min_vals: np.ndarray,
+    max_vals: np.ndarray,
+    boolean_features: np.ndarray = None,
+    categorical_features: np.ndarray = None,
+    numerical_features: np.ndarray = None,
+    feature_weights: np.ndarray = None,
+) -> np.float:
     """Combined UMAP metric for heterogeneous typed features.
     The metric distance is obtained as the product
     (L2 norm) of the vectors resulting from the

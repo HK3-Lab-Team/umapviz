@@ -9,10 +9,12 @@ from .umap_exp import UmapExperiment
 from .umap_metrics import tanimoto_gower
 
 logger = logging.getLogger(__name__)
-logger.setLevel('DEBUG')
+logger.setLevel("DEBUG")
 
-TOOLS = "hover,crosshair,pan,wheel_zoom,zoom_in,zoom_out,box_zoom," \
-        "undo,redo,reset,tap,save,box_select,poly_select,lasso_select,"
+TOOLS = (
+    "hover,crosshair,pan,wheel_zoom,zoom_in,zoom_out,box_zoom,"
+    "undo,redo,reset,tap,save,box_select,poly_select,lasso_select,"
+)
 
 
 def _get_metric_kwds_umap_embeddings(embeddings: np.ndarray) -> Dict:
@@ -39,63 +41,53 @@ class UmapClustering(UmapExperiment):
     """
 
     def __init__(
-            self,
-            df_info: DataFrameWithInfo,
-            n_neighbors: int,
-            min_distance: float,
-
-            not_nan_percentage_threshold: float,
-            train_test_split_ratio: float,
-
-            feature_to_color: str,
-            multi_marker_feats: Tuple,
-            enc_value_to_str_map: Dict[str, Dict],
-            file_title_prefix: str,
-
-            exclude_feat_list: Tuple = (),
-            numer_feat_list: Tuple = None,
-            categ_feat_list: Tuple = None,
-            bool_feat_list: Tuple = None,
-
-            random_seed: int = 42,
-            metric: Union[str, types.FunctionType] = "euclidean",
-            metric_kwds: Dict = None,
-
-            feature_weights: Tuple[float] = (),
-            numer_feat_weight: float = 1.,
-            categ_feat_weight: float = 1.,
-            bool_feat_weight: float = 1.,
-
-            group_values_to_be_shown: Tuple[str, Tuple[Tuple[str]]] = None,
-            color_tuple: Tuple = (),
-            test_color_tuple: Tuple = (),
-            tools: str = TOOLS,
-            tooltip_feats: Tuple = None,
-            tooltips: List = None,
-            marker_fill_alpha: float = 0.2,
-            marker_size: int = 6,
-            legend_location: str = 'bottom_left',
+        self,
+        df_info: DataFrameWithInfo,
+        n_neighbors: int,
+        min_distance: float,
+        not_nan_percentage_threshold: float,
+        train_test_split_ratio: float,
+        feature_to_color: str,
+        multi_marker_feats: Tuple,
+        enc_value_to_str_map: Dict[str, Dict],
+        file_title_prefix: str,
+        exclude_feat_list: Tuple = (),
+        numer_feat_list: Tuple = None,
+        categ_feat_list: Tuple = None,
+        bool_feat_list: Tuple = None,
+        random_seed: int = 42,
+        metric: Union[str, types.FunctionType] = "euclidean",
+        metric_kwds: Dict = None,
+        feature_weights: Tuple[float] = (),
+        numer_feat_weight: float = 1.0,
+        categ_feat_weight: float = 1.0,
+        bool_feat_weight: float = 1.0,
+        group_values_to_be_shown: Tuple[str, Tuple[Tuple[str]]] = None,
+        color_tuple: Tuple = (),
+        test_color_tuple: Tuple = (),
+        tools: str = TOOLS,
+        tooltip_feats: Tuple = None,
+        tooltips: List = None,
+        marker_fill_alpha: float = 0.2,
+        marker_size: int = 6,
+        legend_location: str = "bottom_left",
     ):
         super(UmapClustering, self).__init__(
             df_info=df_info,
             n_neighbors=n_neighbors,
             min_distance=min_distance,
-
             not_nan_percentage_threshold=not_nan_percentage_threshold,
             # this will be set only after clustering because HDBSCAN does not support
             # prediction on test set
-            train_test_split_ratio=0.,
-
+            train_test_split_ratio=0.0,
             feature_to_color=feature_to_color,
             multi_marker_feats=multi_marker_feats,
             enc_value_to_str_map=enc_value_to_str_map,
             file_title_prefix=file_title_prefix,
-
             exclude_feat_list=exclude_feat_list,
             numer_feat_list=numer_feat_list,
             categ_feat_list=categ_feat_list,
             bool_feat_list=bool_feat_list,
-
             random_seed=random_seed,
             metric=metric,
             metric_kwds=metric_kwds,
@@ -103,7 +95,6 @@ class UmapClustering(UmapExperiment):
             numer_feat_weight=numer_feat_weight,
             categ_feat_weight=categ_feat_weight,
             bool_feat_weight=bool_feat_weight,
-
             group_values_to_be_shown=group_values_to_be_shown,
             color_tuple=color_tuple,
             test_color_tuple=test_color_tuple,
@@ -127,14 +118,29 @@ class UmapClustering(UmapExperiment):
         self._test_umap_data, self._test_notna_full_features_df = None, None
 
         # These will store the embeddings generated for clustering, so they contain more dimensions
-        self.reducer_cluster, self.cluster_data, self.test_embedding_cluster = None, None, None
+        self.reducer_cluster, self.cluster_data, self.test_embedding_cluster = (
+            None,
+            None,
+            None,
+        )
         self.hdbscan_fit, self.clustering_labels = None, None
 
-    def clustering(self, min_cluster_size: int, use_umap_preprocessing: bool = True,
-                   umap_components: int = None, umap_min_distance: float = None, umap_n_neighbors: int = None,
-                   min_samples=None, cluster_selection_epsilon=0.0,
-                   cluster_metric=None, alpha=1.0, p=None,
-                   algorithm='best', leaf_size=40, cluster_metric_kwds: Dict[str, Any] = None):
+    def clustering(
+        self,
+        min_cluster_size: int,
+        use_umap_preprocessing: bool = True,
+        umap_components: int = None,
+        umap_min_distance: float = None,
+        umap_n_neighbors: int = None,
+        min_samples=None,
+        cluster_selection_epsilon=0.0,
+        cluster_metric=None,
+        alpha=1.0,
+        p=None,
+        algorithm="best",
+        leaf_size=40,
+        cluster_metric_kwds: Dict[str, Any] = None,
+    ):
         """
         This method is to identify cluster labels using HDBSCAN after a partial dimensionality
         reduction (UMAP) (in order to have better cluster computation).
@@ -184,24 +190,31 @@ class UmapClustering(UmapExperiment):
             # OPTION 1. Using UMAP to reduce data dimensions for more effective HDBSCAN clustering results
 
             if umap_components is None:
-                logger.error("No umap_components argument specified. This is required for using UMAP preprocessing")
+                logger.error(
+                    "No umap_components argument specified. This is required for using UMAP preprocessing"
+                )
             if umap_min_distance is None:
                 umap_min_distance = self.min_distance
             if umap_n_neighbors is None:
                 umap_n_neighbors = self.n_neighbors
 
-            if self.cluster_data is None or self.cluster_data.shape[1] > umap_components:
+            if (
+                self.cluster_data is None
+                or self.cluster_data.shape[1] > umap_components
+            ):
                 self.cluster_data, _ = self.fit_transform(
                     n_components=umap_components,
                     n_neighbors=umap_n_neighbors,
-                    min_distance=umap_min_distance
+                    min_distance=umap_min_distance,
                 )
 
             if cluster_metric is None:
                 # We can use 'tanimoto_gower' metric because the UMAP embeddings are all numeric
                 # and they need to be normalized
                 cluster_metric = tanimoto_gower
-                cluster_metric_kwds = _get_metric_kwds_umap_embeddings(self.cluster_data)
+                cluster_metric_kwds = _get_metric_kwds_umap_embeddings(
+                    self.cluster_data
+                )
             elif cluster_metric_kwds is None:
                 cluster_metric_kwds = {}
 
@@ -213,30 +226,44 @@ class UmapClustering(UmapExperiment):
             # These two are to make possible to specify a different metric and metric_kwds for clustering
             # (instead of using the same as UMAP)
             if cluster_metric is None:
-                assert self.metric is not None, "fit() method has not been called, so 'metric' attribute is None"
+                assert (
+                    self.metric is not None
+                ), "fit() method has not been called, so 'metric' attribute is None"
                 cluster_metric = self.metric
             if cluster_metric_kwds is None:
                 # If the attribute has not been defined, the metric_kwds are set for 'tanimoto_gower' custom metric
                 if self.metric_kwds is None:
-                    self.metric_kwds = self._get_tanimoto_gower_metric_kwds(self.cluster_data)
+                    self.metric_kwds = self._get_tanimoto_gower_metric_kwds(
+                        self.cluster_data
+                    )
 
                 cluster_metric_kwds = self.metric_kwds
 
-            logging.info(f"HDBSCAN will use the following features: \n{self.data_summary}")
+            logging.info(
+                f"HDBSCAN will use the following features: \n{self.data_summary}"
+            )
 
         self.hdbscan_fit = HDBSCAN(
-            min_cluster_size=min_cluster_size, metric=cluster_metric,
-            min_samples=min_samples, cluster_selection_epsilon=cluster_selection_epsilon,
-            alpha=alpha, p=p, algorithm=algorithm, leaf_size=leaf_size,
-            **cluster_metric_kwds
+            min_cluster_size=min_cluster_size,
+            metric=cluster_metric,
+            min_samples=min_samples,
+            cluster_selection_epsilon=cluster_selection_epsilon,
+            alpha=alpha,
+            p=p,
+            algorithm=algorithm,
+            leaf_size=leaf_size,
+            **cluster_metric_kwds,
         ).fit(self.cluster_data)
         self.clustering_labels = self.hdbscan_fit.labels_
-        logger.info(f'Clustering completed. Found: {np.unique(self.clustering_labels)} labels')
+        logger.info(
+            f"Clustering completed. Found: {np.unique(self.clustering_labels)} labels"
+        )
 
         return self.clustering_labels
 
-    def plot_cluster_labels(self, multi_marker_feats: Tuple = (),
-                            return_plot: bool = False):
+    def plot_cluster_labels(
+        self, multi_marker_feats: Tuple = (), return_plot: bool = False
+    ):
         """
         Plot bokeh.figure with UMAP embeddings according to the instance attributes.
         This is different from plot method because it will color the plot samples based on the cluster_labels
@@ -262,9 +289,11 @@ class UmapClustering(UmapExperiment):
             or it can be put into a grid.
         """
         if self.clustering_labels is None or self.cluster_data is None:
-            logger.error("The method .clustering() needs to be called before this method so that HDBSCAN "
-                         "algorithm is performed with appropriate arguments and clustering_labels are "
-                         "computed.")
+            logger.error(
+                "The method .clustering() needs to be called before this method so that HDBSCAN "
+                "algorithm is performed with appropriate arguments and clustering_labels are "
+                "computed."
+            )
         else:
             # We use the embedding obtained with previous UMAP (with "umap_component" dimensions)
             # as input for the new dimensionality reduction up to 2-Dimensions
@@ -277,10 +306,13 @@ class UmapClustering(UmapExperiment):
         # Fit UMAP in order to get 2D embedding. We need to use the N-dimensional data from
         # df_info because with tanimoto gower we cannot specify which features in
         # self.embedding_cluster are categorical, boolean, numeric,...
-        self.embedding, self.test_embedding = \
-            self.fit_transform(n_components=2, repeat_fitting=True)
+        self.embedding, self.test_embedding = self.fit_transform(
+            n_components=2, repeat_fitting=True
+        )
 
         self.multi_marker_feats = multi_marker_feats
-        self.feature_to_color = 'clustering_label'
-        self._train_notna_full_features_df.df['clustering_label'] = self.clustering_labels
+        self.feature_to_color = "clustering_label"
+        self._train_notna_full_features_df.df[
+            "clustering_label"
+        ] = self.clustering_labels
         self.plot(return_plot=return_plot)

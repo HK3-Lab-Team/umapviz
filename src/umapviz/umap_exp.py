@@ -7,14 +7,19 @@ from dataclasses import dataclass
 import pandas as pd
 import bokeh.plotting as bk
 
-from pd_extras.utils.dataframe_with_info import DataFrameWithInfo, copy_df_info_with_new_df
+from pd_extras.utils.dataframe_with_info import (
+    DataFrameWithInfo,
+    copy_df_info_with_new_df,
+)
 from .umap_functions import get_umap_embeddings, plot_umap
 
 logger = logging.getLogger(__name__)
-logger.setLevel('DEBUG')
+logger.setLevel("DEBUG")
 
-TOOLS = "hover,crosshair,pan,wheel_zoom,zoom_in,zoom_out,box_zoom," \
-        "undo,redo,reset,tap,save,box_select,poly_select,lasso_select,"
+TOOLS = (
+    "hover,crosshair,pan,wheel_zoom,zoom_in,zoom_out,box_zoom,"
+    "undo,redo,reset,tap,save,box_select,poly_select,lasso_select,"
+)
 TOOLTIPS = (
     ("index", "$index"),
     ("(x,y)", "($x, $y)"),
@@ -27,6 +32,7 @@ class FeatureCategory:
     """
     This gathers the info about a set of features of the same kind
     """
+
     name_f: str
     type_f: Any
     list_f: Tuple[str]
@@ -42,6 +48,7 @@ class FeatureCategoriesList:
     This DataClass gathers the dataframe feature names by type.
     It cannot be replaced by a list because I need to get those specific attributes
     """
+
     numeric_f: FeatureCategory
     categ_f: FeatureCategory
     bool_f: FeatureCategory
@@ -69,42 +76,36 @@ class UmapExperiment:
     """
 
     def __init__(
-            self,
-            df_info: DataFrameWithInfo,
-            n_neighbors: int,
-            min_distance: float,
-
-            not_nan_percentage_threshold: float,
-            train_test_split_ratio: float,
-
-            feature_to_color: str,
-            multi_marker_feats: Tuple,
-            enc_value_to_str_map: Dict[str, Dict],
-            file_title_prefix: str,
-
-            exclude_feat_list: Tuple = (),
-            numer_feat_list: Tuple = None,
-            categ_feat_list: Tuple = None,
-            bool_feat_list: Tuple = None,
-
-            random_seed: int = 42,
-            metric: Union[str, types.FunctionType] = "euclidean",
-            metric_kwds: Dict = None,
-
-            feature_weights: Tuple[float] = (),
-            numer_feat_weight: float = 1.,
-            categ_feat_weight: float = 1.,
-            bool_feat_weight: float = 1.,
-
-            group_values_to_be_shown: Tuple[str, Tuple[Tuple[str]]] = None,
-            color_tuple: Tuple = (),
-            test_color_tuple: Tuple = (),
-            tools: str = TOOLS,
-            tooltip_feats: Tuple = None,
-            tooltips: List = None,
-            marker_fill_alpha: float = 0.2,
-            marker_size: int = 6,
-            legend_location: str = 'bottom_left',
+        self,
+        df_info: DataFrameWithInfo,
+        n_neighbors: int,
+        min_distance: float,
+        not_nan_percentage_threshold: float,
+        train_test_split_ratio: float,
+        feature_to_color: str,
+        multi_marker_feats: Tuple,
+        enc_value_to_str_map: Dict[str, Dict],
+        file_title_prefix: str,
+        exclude_feat_list: Tuple = (),
+        numer_feat_list: Tuple = None,
+        categ_feat_list: Tuple = None,
+        bool_feat_list: Tuple = None,
+        random_seed: int = 42,
+        metric: Union[str, types.FunctionType] = "euclidean",
+        metric_kwds: Dict = None,
+        feature_weights: Tuple[float] = (),
+        numer_feat_weight: float = 1.0,
+        categ_feat_weight: float = 1.0,
+        bool_feat_weight: float = 1.0,
+        group_values_to_be_shown: Tuple[str, Tuple[Tuple[str]]] = None,
+        color_tuple: Tuple = (),
+        test_color_tuple: Tuple = (),
+        tools: str = TOOLS,
+        tooltip_feats: Tuple = None,
+        tooltips: List = None,
+        marker_fill_alpha: float = 0.2,
+        marker_size: int = 6,
+        legend_location: str = "bottom_left",
     ):
         """
         This constructor gathers all the settings and methods required to build UMAP experiment
@@ -117,7 +118,7 @@ class UmapExperiment:
         n_neighbors: int
             Number of neighbors to consider in UMAP algorithm. It depends on the number of samples available
         min_distance: float
-            Minimum distance to consider in UMAP algorithm. It depends on which scale you want to see 
+            Minimum distance to consider in UMAP algorithm. It depends on which scale you want to see
             patterns/structures
         random_seed: int
             Numeric value to fix the initial random state in order to get repeatable results from UMAP algorithm
@@ -202,40 +203,48 @@ class UmapExperiment:
         self.min_distance = min_distance
 
         self.exclude_feats = FeatureCategory(
-            name_f='exclude',
+            name_f="exclude",
             type_f=None,
             list_f=exclude_feat_list,
         )
 
         self.cols_by_type = df_info.column_list_by_type
-        bool_feat_list = self.cols_by_type.bool_cols if bool_feat_list is None else bool_feat_list
-        numer_feat_list = self.cols_by_type.numerical_cols if numer_feat_list is None else numer_feat_list
-        categ_feat_list = self.cols_by_type.num_categorical_cols if categ_feat_list is None else categ_feat_list
+        bool_feat_list = (
+            self.cols_by_type.bool_cols if bool_feat_list is None else bool_feat_list
+        )
+        numer_feat_list = (
+            self.cols_by_type.numerical_cols
+            if numer_feat_list is None
+            else numer_feat_list
+        )
+        categ_feat_list = (
+            self.cols_by_type.num_categorical_cols
+            if categ_feat_list is None
+            else categ_feat_list
+        )
 
         bool_f = FeatureCategory(
-            name_f='bool',
+            name_f="bool",
             type_f=np.int,
             list_f=tuple(set(bool_feat_list) - set(exclude_feat_list)),
-            weight_f=float(bool_feat_weight)
+            weight_f=float(bool_feat_weight),
         )
         numeric_f = FeatureCategory(
-            name_f='numeric',
+            name_f="numeric",
             type_f=np.float,
             list_f=tuple(set(numer_feat_list) - set(exclude_feat_list)),
-            weight_f=float(numer_feat_weight)
+            weight_f=float(numer_feat_weight),
         )
         categ_f = FeatureCategory(
-            name_f='categorical',
+            name_f="categorical",
             type_f=np.int,
             list_f=tuple(set(categ_feat_list) - set(exclude_feat_list)),
-            weight_f=float(categ_feat_weight)
+            weight_f=float(categ_feat_weight),
         )
         # Unlike the other attributes, the features list should not be changed once
         # UmapExperiment is instantiated.
         self._feat_list = FeatureCategoriesList(
-            numeric_f=numeric_f,
-            categ_f=categ_f,
-            bool_f=bool_f
+            numeric_f=numeric_f, categ_f=categ_f, bool_f=bool_f
         )
         self._set_df_feature_types()
 
@@ -278,9 +287,13 @@ class UmapExperiment:
         for feat_class in self._feat_list:
             for col in feat_class.list_f:
                 try:
-                    self.df_info.df[col] = self.df_info.df[col].astype(feat_class.type_f)
+                    self.df_info.df[col] = self.df_info.df[col].astype(
+                        feat_class.type_f
+                    )
                 except KeyError:
-                    logger.error(f"Column {col} from {feat_class.name_f} columns is not present in df_info")
+                    logger.error(
+                        f"Column {col} from {feat_class.name_f} columns is not present in df_info"
+                    )
 
     def _remove_nan(self) -> pd.DataFrame:
         """
@@ -310,28 +323,38 @@ class UmapExperiment:
             for f in feat_list.list_f:
                 try:
                     not_na_count = sum(self.df_info.df[f].notna())
-                    if not_na_count > self.not_nan_percentage_threshold * self.df_info.df.shape[0]:
+                    if (
+                        not_na_count
+                        > self.not_nan_percentage_threshold * self.df_info.df.shape[0]
+                    ):
                         feat_list_notnan.append(f)
                     else:
                         many_nan_features.append(f)
-                except KeyError as e:
-                    logger.warning(f"The {feat_list.name_f} feature {f} is not present in 'df_info.df' attribute."
-                                   f"So it will not be considered in further analysis")
+                except KeyError:
+                    logger.warning(
+                        f"The {feat_list.name_f} feature {f} is not present in 'df_info.df' attribute."
+                        f"So it will not be considered in further analysis"
+                    )
             # Concatenate the features with few NaN (this way the umap_data will have the same order as
             # given by __iter__ method from FeatureList class
-            umap_data = pd.concat([umap_data, self.df_info.df[feat_list_notnan]], axis=1)
+            umap_data = pd.concat(
+                [umap_data, self.df_info.df[feat_list_notnan]], axis=1
+            )
             # Replace the feature list with the ones we selected (less NaN)
             feat_list.list_f = feat_list_notnan
-        logging.info(f'The features that have too high number of Nan (and will not be considered '
-                     f'in UMAP) are: {many_nan_features}')
+        logging.info(
+            f"The features that have too high number of Nan (and will not be considered "
+            f"in UMAP) are: {many_nan_features}"
+        )
 
         # Select only the rows based on "feat_list_notnan", dropping the ones containing NaN
         umap_data = umap_data.dropna(axis=0)
 
         return umap_data
 
-    def _train_test_split(self, umap_data: pd.DataFrame,
-                          test_over_set_ratio: float) -> Tuple[DataFrameWithInfo, ...]:
+    def _train_test_split(
+        self, umap_data: pd.DataFrame, test_over_set_ratio: float
+    ) -> Tuple[DataFrameWithInfo, ...]:
         """
         It splits the umap_data argument into train and test.
         It also returns the train and test set with all the features (even the ones that are not used
@@ -356,29 +379,46 @@ class UmapExperiment:
         if self.train_test_split_ratio != 0:
             # SPLIT into training and test set
             train_umap_data, test_umap_data = sklearn.model_selection.train_test_split(
-                umap_data,
-                test_size=test_over_set_ratio
+                umap_data, test_size=test_over_set_ratio
             )
             # Use train and test to create DataFrameWithInfo instances
-            train_umap_data = copy_df_info_with_new_df(df_info=self.df_info, new_pandas_df=train_umap_data)
-            test_umap_data = copy_df_info_with_new_df(df_info=self.df_info, new_pandas_df=test_umap_data)
+            train_umap_data = copy_df_info_with_new_df(
+                df_info=self.df_info, new_pandas_df=train_umap_data
+            )
+            test_umap_data = copy_df_info_with_new_df(
+                df_info=self.df_info, new_pandas_df=test_umap_data
+            )
             # Select only the rows in umap data from the df
             train_notna_full_features_df = copy_df_info_with_new_df(
                 df_info=self.df_info,
-                new_pandas_df=self.df_info.df.iloc[train_umap_data.df.index])
+                new_pandas_df=self.df_info.df.iloc[train_umap_data.df.index],
+            )
             test_notna_full_features_df = copy_df_info_with_new_df(
                 df_info=self.df_info,
-                new_pandas_df=self.df_info.df.iloc[test_umap_data.df.index])
+                new_pandas_df=self.df_info.df.iloc[test_umap_data.df.index],
+            )
             # Reset index (so it is easier for further analysis)
-            train_notna_full_features_df.df = train_notna_full_features_df.df.reset_index(drop=True)
-            test_notna_full_features_df.df = test_notna_full_features_df.df.reset_index(drop=True)
+            train_notna_full_features_df.df = (
+                train_notna_full_features_df.df.reset_index(drop=True)
+            )
+            test_notna_full_features_df.df = test_notna_full_features_df.df.reset_index(
+                drop=True
+            )
 
-            return train_umap_data, train_notna_full_features_df, test_umap_data, test_notna_full_features_df
+            return (
+                train_umap_data,
+                train_notna_full_features_df,
+                test_umap_data,
+                test_notna_full_features_df,
+            )
         else:
-            umap_data_df = copy_df_info_with_new_df(df_info=self.df_info,
-                                                    new_pandas_df=umap_data)
-            notna_full_features_df = copy_df_info_with_new_df(df_info=self.df_info,
-                                                              new_pandas_df=self.df_info.df.iloc[umap_data.index])
+            umap_data_df = copy_df_info_with_new_df(
+                df_info=self.df_info, new_pandas_df=umap_data
+            )
+            notna_full_features_df = copy_df_info_with_new_df(
+                df_info=self.df_info,
+                new_pandas_df=self.df_info.df.iloc[umap_data.index],
+            )
             notna_full_features_df.df = notna_full_features_df.df.reset_index(drop=True)
             return umap_data_df, notna_full_features_df, None, None
 
@@ -387,13 +427,17 @@ class UmapExperiment:
         The function will validate the features in order to verify that the features marked in the plot
         (i.e. "feature_to_color" or "multi_feat_to_combine_partit_list") are not included in UMAP fitting
         """
-        plotted_feats = list(self.multi_marker_feats) + [self.feature_to_color, ]
+        plotted_feats = list(self.multi_marker_feats) + [
+            self.feature_to_color,
+        ]
         for feat in self._feat_list:
             # Check for every features that will be shown in plot
             for plotted_feat in plotted_feats:
                 if plotted_feat in feat.list_f:
-                    logger.warning(f"{plotted_feat} is included among the features of UMAP fitting. "
-                                   f"This leads to data leakage. Be careful")
+                    logger.warning(
+                        f"{plotted_feat} is included among the features of UMAP fitting. "
+                        f"This leads to data leakage. Be careful"
+                    )
 
     def _prepare_umap_data(self) -> Tuple[DataFrameWithInfo, ...]:
         """
@@ -410,9 +454,7 @@ class UmapExperiment:
         """
         umap_data = self._remove_nan()
 
-        return self._train_test_split(
-            umap_data, self.train_test_split_ratio
-        )
+        return self._train_test_split(umap_data, self.train_test_split_ratio)
 
     def _get_feat_weights(self) -> np.array:
         """
@@ -442,22 +484,32 @@ class UmapExperiment:
         cat_end = len(self._feat_list.categ_f)
         num_end = len(self._feat_list.numeric_f)
 
-        bool_feat_metric = np.array(
-            np.arange(bool_end), np.int64
-        ) if bool_end > 0 else None
-        cat_feat_metric = np.array(
-            np.arange(bool_end, bool_end + cat_end), np.int64
-        ) if cat_end > 0 else None
-        num_feat_metric = np.array(
-            np.arange(bool_end + cat_end, bool_end + cat_end + num_end), np.int64
-        ) if num_end > 0 else None
+        bool_feat_metric = (
+            np.array(np.arange(bool_end), np.int64) if bool_end > 0 else None
+        )
+        cat_feat_metric = (
+            np.array(np.arange(bool_end, bool_end + cat_end), np.int64)
+            if cat_end > 0
+            else None
+        )
+        num_feat_metric = (
+            np.array(
+                np.arange(bool_end + cat_end, bool_end + cat_end + num_end), np.int64
+            )
+            if num_end > 0
+            else None
+        )
 
         return bool_feat_metric, cat_feat_metric, num_feat_metric
 
     def _get_tanimoto_gower_metric_kwds(self, df_data: pd.DataFrame) -> Dict:
 
         feat_weights = self._get_feat_weights()
-        bool_feat_metric, cat_feat_metric, num_feat_metric = self._get_feature_ids_by_category()
+        (
+            bool_feat_metric,
+            cat_feat_metric,
+            num_feat_metric,
+        ) = self._get_feature_ids_by_category()
 
         minv = np.quantile(df_data.values, q=0.025, axis=0)
         maxv = np.quantile(df_data.values, q=0.975, axis=0)
@@ -472,8 +524,13 @@ class UmapExperiment:
         )
         return metric_kwds
 
-    def fit_transform(self, n_components=2, repeat_fitting: bool = False,
-                      min_distance: float = None, n_neighbors: int = None) -> Tuple[np.ndarray, np.ndarray]:
+    def fit_transform(
+        self,
+        n_components=2,
+        repeat_fitting: bool = False,
+        min_distance: float = None,
+        n_neighbors: int = None,
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         This will prepare the data (by splitting and removing NaN) and the metric_kwds.
         Then these will be passed to UMAP algorithm for fitting on train set. The train and test set
@@ -495,13 +552,23 @@ class UmapExperiment:
         test_embedding: np.ndarray
             UMAP embeddings of the test samples (computed by using the UMAP fit on train set)
         """
-        if repeat_fitting or self._train_umap_data is None or self._train_notna_full_features_df is None:
-            self._train_umap_data, self._train_notna_full_features_df, \
-            self._test_umap_data, self._test_notna_full_features_df = self._prepare_umap_data()
+        if (
+            repeat_fitting
+            or self._train_umap_data is None
+            or self._train_notna_full_features_df is None
+        ):
+            (
+                self._train_umap_data,
+                self._train_notna_full_features_df,
+                self._test_umap_data,
+                self._test_notna_full_features_df,
+            ) = self._prepare_umap_data()
 
         # If the attribute has not been defined, the metric_kwds are set for 'tanimoto_gower' custom metric
         if self.metric_kwds is None:
-            self.metric_kwds = self._get_tanimoto_gower_metric_kwds(self._train_umap_data.df)
+            self.metric_kwds = self._get_tanimoto_gower_metric_kwds(
+                self._train_umap_data.df
+            )
 
         logging.info(f"UMAP will use the following features: \n{self.data_summary}")
 
@@ -518,7 +585,7 @@ class UmapExperiment:
             random_state=self.random_seed,
             metric=self.metric,
             metric_kwds=self.metric_kwds,
-            test_df_info=self._test_umap_data
+            test_df_info=self._test_umap_data,
         )
         return self.embedding, self.test_embedding
 
@@ -550,7 +617,7 @@ class UmapExperiment:
         bk_plot = plot_umap(
             embedding=self.embedding,
             df_full_feat=self._train_notna_full_features_df,
-            umap_params_str=f'{self.n_neighbors}_{self.min_distance}',
+            umap_params_str=f"{self.n_neighbors}_{self.min_distance}",
             group_values_to_be_shown=self.group_values_to_be_shown,
             feature_to_color=self.feature_to_color,
             multi_marker_feats=self.multi_marker_feats,
@@ -566,18 +633,20 @@ class UmapExperiment:
             tools=self.tools,
             marker_fill_alpha=self.marker_fill_alpha,
             marker_size=self.marker_size,
-            return_plot=return_plot
+            return_plot=return_plot,
         )
         return bk_plot
 
     @property
     def data_summary(self) -> str:
         """ Returns a list of features by category (numeric, categoric, ..)"""
-        data_summary = ''
+        data_summary = ""
         for id, feat in enumerate(self._feat_list):
             if len(feat) == 0:
-                feat_list_str = '0 feat.'
+                feat_list_str = "0 feat."
             else:
-                feat_list_str = f'{len(feat)} feat.\n\t[' + ' - '.join(feat.list_f) + ']'
+                feat_list_str = (
+                    f"{len(feat)} feat.\n\t[" + " - ".join(feat.list_f) + "]"
+                )
             data_summary += f"{id}.\t{str(feat.name_f)}:\t{feat_list_str}\n"
         return data_summary

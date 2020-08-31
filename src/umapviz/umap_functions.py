@@ -9,13 +9,19 @@ import bokeh
 from bokeh import palettes
 import bokeh.plotting as bk
 
-from pd_extras.utils.dataframe_with_info import DataFrameWithInfo, copy_df_info_with_new_df
+from pd_extras.utils.dataframe_with_info import (
+    DataFrameWithInfo,
+    copy_df_info_with_new_df,
+)
 from medplot.utils.umap.umap_plot import UmapBokeh
 
 
-def prepare_umap_data(df_info: DataFrameWithInfo, col_list: Tuple = None, not_nan_percentage_threshold=0.9,
-                      test_over_set_ratio=0.25) -> Tuple[DataFrameWithInfo, DataFrameWithInfo,
-                                                         DataFrameWithInfo, DataFrameWithInfo]:
+def prepare_umap_data(
+    df_info: DataFrameWithInfo,
+    col_list: Tuple = None,
+    not_nan_percentage_threshold=0.9,
+    test_over_set_ratio=0.25,
+) -> Tuple[DataFrameWithInfo, DataFrameWithInfo, DataFrameWithInfo, DataFrameWithInfo]:
     """
     PREPARING DATA FOR UMAP
 
@@ -67,41 +73,61 @@ def prepare_umap_data(df_info: DataFrameWithInfo, col_list: Tuple = None, not_na
             feat_list_notnan.append(f)
         else:
             many_nan_features.append(f)
-    logging.info(f'The features that have too high number of Nan (and will not be considered '
-                 f'in UMAP) are: {many_nan_features}')
+    logging.info(
+        f"The features that have too high number of Nan (and will not be considered "
+        f"in UMAP) are: {many_nan_features}"
+    )
     # Select only the rows based on "feat_list_notnan", dropping the ones containing NaN
     umap_data = df_info.df[feat_list_notnan].dropna(axis=0)
     if test_over_set_ratio != 0:
         # SPLIT into training and test set
-        train_umap_data, test_umap_data = sklearn.model_selection.train_test_split(umap_data,
-                                                                                   test_size=test_over_set_ratio)
+        train_umap_data, test_umap_data = sklearn.model_selection.train_test_split(
+            umap_data, test_size=test_over_set_ratio
+        )
 
         # Use train and test to create DataFrameWithInfo instances
-        train_umap_data = copy_df_info_with_new_df(df_info=df_info, new_pandas_df=train_umap_data)
-        test_umap_data = copy_df_info_with_new_df(df_info=df_info, new_pandas_df=test_umap_data)
+        train_umap_data = copy_df_info_with_new_df(
+            df_info=df_info, new_pandas_df=train_umap_data
+        )
+        test_umap_data = copy_df_info_with_new_df(
+            df_info=df_info, new_pandas_df=test_umap_data
+        )
         # Select only the rows in umap data from the df
         train_notna_full_features_df = copy_df_info_with_new_df(
-            df_info=df_info,
-            new_pandas_df=df_info.df.iloc[train_umap_data.df.index])
+            df_info=df_info, new_pandas_df=df_info.df.iloc[train_umap_data.df.index]
+        )
         test_notna_full_features_df = copy_df_info_with_new_df(
-            df_info=df_info,
-            new_pandas_df=df_info.df.iloc[test_umap_data.df.index])
+            df_info=df_info, new_pandas_df=df_info.df.iloc[test_umap_data.df.index]
+        )
         # Reset index (so it is easier for further analysis)
-        train_notna_full_features_df.df = train_notna_full_features_df.df.reset_index(drop=True)
-        test_notna_full_features_df.df = test_notna_full_features_df.df.reset_index(drop=True)
+        train_notna_full_features_df.df = train_notna_full_features_df.df.reset_index(
+            drop=True
+        )
+        test_notna_full_features_df.df = test_notna_full_features_df.df.reset_index(
+            drop=True
+        )
 
-        return train_umap_data, train_notna_full_features_df, test_umap_data, test_notna_full_features_df
+        return (
+            train_umap_data,
+            train_notna_full_features_df,
+            test_umap_data,
+            test_notna_full_features_df,
+        )
     else:
         umap_data = copy_df_info_with_new_df(df_info=df_info, new_pandas_df=umap_data)
         return umap_data, df_info
 
 
-def get_umap_embeddings(train_df_info: DataFrameWithInfo,
-                        n_neighbors: int, min_dist: float,
-                        n_components=2, metric='euclidean',
-                        metric_kwds=None, random_state=42,
-                        test_df_info: DataFrameWithInfo = None) -> Tuple[umap.UMAP, np.ndarray,
-                                                                         np.ndarray]:
+def get_umap_embeddings(
+    train_df_info: DataFrameWithInfo,
+    n_neighbors: int,
+    min_dist: float,
+    n_components=2,
+    metric="euclidean",
+    metric_kwds=None,
+    random_state=42,
+    test_df_info: DataFrameWithInfo = None,
+) -> Tuple[umap.UMAP, np.ndarray, np.ndarray]:
     """
     The function will fit the UMAP algorithm on 'train_df' and it will then use the model to transform
     train and test set.
@@ -127,8 +153,14 @@ def get_umap_embeddings(train_df_info: DataFrameWithInfo,
     if metric_kwds is None:
         metric_kwds = {}
     # Create and fit UMAP
-    reducer = umap.UMAP(random_state=random_state, metric=metric, n_neighbors=n_neighbors,
-                        n_components=n_components, min_dist=min_dist, metric_kwds=metric_kwds)
+    reducer = umap.UMAP(
+        random_state=random_state,
+        metric=metric,
+        n_neighbors=n_neighbors,
+        n_components=n_components,
+        min_dist=min_dist,
+        metric_kwds=metric_kwds,
+    )
     reducer.fit(train_df_info.df)
 
     # Transform using UMAP transformation
@@ -141,19 +173,29 @@ def get_umap_embeddings(train_df_info: DataFrameWithInfo,
     return reducer, embedding, test_embedding
 
 
-def plot_umap(embedding: np.ndarray, df_full_feat: DataFrameWithInfo,
-              umap_params_str: str,
-              group_values_to_be_shown: Union[Tuple[str, Tuple[Tuple[str]]], None] = None,
-              color_tuple=palettes.Category10[10],
-              test_embedding: np.ndarray = None,
-              feature_to_color=None, multi_marker_feats: Union[Tuple, None] = None,
-              enc_value_to_str_map: Dict[str, Dict] = None, legend_location='bottom_left',  # random_state=None,
-              test_df_full_feat: DataFrameWithInfo = None, test_color_tuple: Tuple = palettes.Set3[12],
-              tools: str = 'box_zoom,box_select,wheel_zoom,reset,tap,save',
-              tooltip_feats: Tuple = None, tooltips=None,
-              plot_height: int = 1200, plot_width: int = 1200,
-              marker_size: int = 6, marker_fill_alpha: float = 0.2,
-              return_plot=False, filename_title_prefix='', ):
+def plot_umap(
+    embedding: np.ndarray,
+    df_full_feat: DataFrameWithInfo,
+    umap_params_str: str,
+    group_values_to_be_shown: Union[Tuple[str, Tuple[Tuple[str]]], None] = None,
+    color_tuple=palettes.Category10[10],
+    test_embedding: np.ndarray = None,
+    feature_to_color=None,
+    multi_marker_feats: Union[Tuple, None] = None,
+    enc_value_to_str_map: Dict[str, Dict] = None,
+    legend_location="bottom_left",  # random_state=None,
+    test_df_full_feat: DataFrameWithInfo = None,
+    test_color_tuple: Tuple = palettes.Set3[12],
+    tools: str = "box_zoom,box_select,wheel_zoom,reset,tap,save",
+    tooltip_feats: Tuple = None,
+    tooltips=None,
+    plot_height: int = 1200,
+    plot_width: int = 1200,
+    marker_size: int = 6,
+    marker_fill_alpha: float = 0.2,
+    return_plot=False,
+    filename_title_prefix="",
+):
     """
     This method will create a Bokeh plot with UMAP data. The different series of points will be defined
     combining two arguments:
@@ -206,7 +248,7 @@ def plot_umap(embedding: np.ndarray, df_full_feat: DataFrameWithInfo,
     @return: No return values
     """
     if group_values_to_be_shown is None:
-        group_values_to_be_shown = (None, [''])
+        group_values_to_be_shown = (None, [""])
 
     # Create a plot for each breed
     umap_plot_per_breed = {}
@@ -214,37 +256,44 @@ def plot_umap(embedding: np.ndarray, df_full_feat: DataFrameWithInfo,
     # Loop over every subgroup of values you chose from 'feature_column_with_subgroups' column
     for subgroup in group_values_to_be_shown[1]:
         # Create an instance of umap_bokeh_plot
-        umap_plot = UmapBokeh(tools=tools, plot_width=plot_width, plot_height=plot_height)
+        umap_plot = UmapBokeh(
+            tools=tools, plot_width=plot_width, plot_height=plot_height
+        )
         # Cast string to tuple if subgroup is only one element
-        if subgroup != '':
+        if subgroup != "":
             subgroup = tuple([subgroup]) if isinstance(subgroup, str) else subgroup
         if multi_marker_feats is None:
             multi_marker_feats = ()
 
         # Calculate the sample count for the training set to be inserted in the bokeh figure title
         if group_values_to_be_shown[0] is not None:
-            sample_count_in_subgroup = \
-                df_full_feat.df[df_full_feat.df[group_values_to_be_shown[0]].isin(subgroup)].shape[0]
+            sample_count_in_subgroup = df_full_feat.df[
+                df_full_feat.df[group_values_to_be_shown[0]].isin(subgroup)
+            ].shape[0]
             group_values_to_be_shown = (group_values_to_be_shown[0], tuple(subgroup))
-            subgroup_str = '-'.join(subgroup)
+            subgroup_str = "-".join(subgroup)
         else:
             sample_count_in_subgroup = df_full_feat.df.shape[0]
-            subgroup_str = ''
+            subgroup_str = ""
 
         # LOOP over training and test set
-        dataset_settings = ((embedding, df_full_feat, color_tuple, 'tr'),
-                            (test_embedding, test_df_full_feat, test_color_tuple, 'test'))
+        dataset_settings = (
+            (embedding, df_full_feat, color_tuple, "tr"),
+            (test_embedding, test_df_full_feat, test_color_tuple, "test"),
+        )
         for embed, df_full, colors, legend_label_prefix in dataset_settings:
             # Check if test_set has been provided
             if embed is not None:
                 # Add multiple series to the figure according to the partitions
-                umap_plot_per_breed[subgroup_str] = umap_plot.add_series_combine_multi_feat(
+                umap_plot_per_breed[
+                    subgroup_str
+                ] = umap_plot.add_series_combine_multi_feat(
                     df_info=df_full,
                     embedding=embed,
                     feature_to_color=feature_to_color,
                     multi_marker_feats=multi_marker_feats,
                     enc_value_to_str_map_multi_feat=enc_value_to_str_map,
-                    title=f'{filename_title_prefix}_{subgroup_str} ({sample_count_in_subgroup})_{umap_params_str}',
+                    title=f"{filename_title_prefix}_{subgroup_str} ({sample_count_in_subgroup})_{umap_params_str}",
                     group_values_to_be_shown=group_values_to_be_shown,
                     color_list=colors,
                     legend_location=legend_location,
@@ -262,7 +311,8 @@ def plot_umap(embedding: np.ndarray, df_full_feat: DataFrameWithInfo,
                 filename_title_prefix = f"UMAP_{subgroup_str}_{umap_params_str}.html"
 
             bk.output_file(
-                filename=f"{filename_title_prefix.replace('.html', '')}_{subgroup_str}_{umap_params_str}.html")
+                filename=f"{filename_title_prefix.replace('.html', '')}_{subgroup_str}_{umap_params_str}.html"
+            )
             bk.show(umap_plot_per_breed[subgroup_str])
 
     if return_plot:
@@ -271,15 +321,23 @@ def plot_umap(embedding: np.ndarray, df_full_feat: DataFrameWithInfo,
         return None
 
 
-def calculate_plot_umap(df_exams_only_umap: DataFrameWithInfo, df_full_feat: DataFrameWithInfo,
-                        n_neighbors: int, min_dist: float,
-                        group_values_to_be_shown: Union[Tuple[str, Tuple[Tuple[str]]], None] = None,
-                        color_tuple=palettes.Category10[10],
-                        test_df_exams_only_umap: DataFrameWithInfo = None,
-                        random_state=42, metric='euclidean',
-                        feature_to_color=None, multi_feat_to_combine_partit_list: Union[Tuple, None] = None,
-                        test_df_full_feat: DataFrameWithInfo = None, test_color_tuple: Tuple = palettes.Set3[12],
-                        return_plot=True, filename_prefix=None):
+def calculate_plot_umap(
+    df_exams_only_umap: DataFrameWithInfo,
+    df_full_feat: DataFrameWithInfo,
+    n_neighbors: int,
+    min_dist: float,
+    group_values_to_be_shown: Union[Tuple[str, Tuple[Tuple[str]]], None] = None,
+    color_tuple=palettes.Category10[10],
+    test_df_exams_only_umap: DataFrameWithInfo = None,
+    random_state=42,
+    metric="euclidean",
+    feature_to_color=None,
+    multi_feat_to_combine_partit_list: Union[Tuple, None] = None,
+    test_df_full_feat: DataFrameWithInfo = None,
+    test_color_tuple: Tuple = palettes.Set3[12],
+    return_plot=True,
+    filename_prefix=None,
+):
     """
     This function is meant to use these arguments to calculate and make only a single plot.
     It will show the plot and, if filename argument is provided, it will save
@@ -324,15 +382,19 @@ def calculate_plot_umap(df_exams_only_umap: DataFrameWithInfo, df_full_feat: Dat
     @return: No return values
     """
     # Create UMAP embeddings
-    reducer, embedding, test_embedding = get_umap_embeddings(train_df_info=df_exams_only_umap,
-                                                             n_neighbors=n_neighbors, min_dist=min_dist,
-                                                             random_state=random_state, metric=metric,
-                                                             test_df_info=test_df_exams_only_umap)
+    reducer, embedding, test_embedding = get_umap_embeddings(
+        train_df_info=df_exams_only_umap,
+        n_neighbors=n_neighbors,
+        min_dist=min_dist,
+        random_state=random_state,
+        metric=metric,
+        test_df_info=test_df_exams_only_umap,
+    )
 
     umap_plot_per_breed = plot_umap(
         embedding=embedding,
         df_full_feat=df_full_feat,
-        umap_params_str=f'{n_neighbors}_{min_dist}',
+        umap_params_str=f"{n_neighbors}_{min_dist}",
         group_values_to_be_shown=group_values_to_be_shown,
         feature_to_color=feature_to_color,
         multi_marker_feats=multi_feat_to_combine_partit_list,
@@ -346,12 +408,21 @@ def calculate_plot_umap(df_exams_only_umap: DataFrameWithInfo, df_full_feat: Dat
 
 
 # TODO: FIX THIS!!
-def calculate_plot_umap_multi_breed_multi_params(df_exams_only_umap, df_full_feat, n_neighbors_list, min_dist_list,
-                                                 multiple_breed_list: Tuple[Tuple], feature_to_color=None,
-                                                 three_feat_color_list: Tuple = (),
-                                                 color_list=bokeh.palettes.Category10[10], test_df_exams_only_umap=None,
-                                                 test_df_full_feat=None, show_grid: bool = True, ncols=None,
-                                                 filename=None):
+def calculate_plot_umap_multi_breed_multi_params(
+    df_exams_only_umap,
+    df_full_feat,
+    n_neighbors_list,
+    min_dist_list,
+    multiple_breed_list: Tuple[Tuple],
+    feature_to_color=None,
+    three_feat_color_list: Tuple = (),
+    color_list=bokeh.palettes.Category10[10],
+    test_df_exams_only_umap=None,
+    test_df_full_feat=None,
+    show_grid: bool = True,
+    ncols=None,
+    filename=None,
+):
     """
     :param df_exams_only_umap: This contains only the features that need to be considered by umap algorithm
     :param df_full_feat: This has the same rows like 'df_exams_only_umap' argument, but it contains more features
@@ -368,13 +439,16 @@ def calculate_plot_umap_multi_breed_multi_params(df_exams_only_umap, df_full_fea
 
     for n_neighbors in n_neighbors_list:
         for min_dist in min_dist_list:
-            reducer[(n_neighbors, min_dist)], embedding[(n_neighbors, min_dist)], \
-            umap_plots[(n_neighbors, min_dist)] = calculate_plot_umap(
+            (
+                reducer[(n_neighbors, min_dist)],
+                embedding[(n_neighbors, min_dist)],
+                umap_plots[(n_neighbors, min_dist)],
+            ) = calculate_plot_umap(
                 df_exams_only_umap=df_exams_only_umap,
                 df_full_feat=df_full_feat,
                 n_neighbors=n_neighbors,
                 min_dist=min_dist,
-                group_values_to_be_shown=('BREED', multiple_breed_list),
+                group_values_to_be_shown=("BREED", multiple_breed_list),
                 feature_to_color=feature_to_color,
                 multi_feat_to_combine_partit_list=three_feat_color_list,
                 color_tuple=color_list,
@@ -394,7 +468,9 @@ def calculate_plot_umap_multi_breed_multi_params(df_exams_only_umap, df_full_fea
         grid = bk.gridplot(umap_plot_list, ncols=ncols)
         # TODO Insert a function to save a list of plots into a grid
         if feature_to_color is None and filename is None:
-            filename = f"UMAP_{'-'.join(three_feat_color_list)}_multibreed_multi_params.html"
+            filename = (
+                f"UMAP_{'-'.join(three_feat_color_list)}_multibreed_multi_params.html"
+            )
         else:
             filename = f"UMAP_{feature_to_color}_multibreed_multi_params.html"
 
