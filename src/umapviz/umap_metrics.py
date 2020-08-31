@@ -203,7 +203,8 @@ def gower_dist_numerical(
     M[:, feat_w_range] -= min_vals[feat_w_range]  #
     M[:, feat_w_range] /= ranges[feat_w_range]
     # Calculate Gower Distance
-    M = M[:, feat_w_range]
+    if feat_w_range.any():
+        M = M[:, feat_w_range]
     gower_num = np.abs(M[1, :] - M[0, :])
     gower_num = np.multiply(weights, gower_num).sum()
     return gower_num
