@@ -58,7 +58,7 @@ def gower_dist_categorical(
         np.float -- gower distance of categorical features
     """
     gower_cat = np.where(a_cat == b_cat, np.zeros_like(a_cat), np.ones_like(a_cat))
-    gower_cat = np.multiply(weights, gower_cat).sum()
+    gower_cat = np.multiply(weights.astype(np.float64), gower_cat).sum()
     return gower_cat
 
 
@@ -77,6 +77,8 @@ def gower_dist_numerical_old(
     Returns:
         np.float -- gower distnace of numerical features
     """
+    a_num = a_num.astype(np.float64)
+    b_num = b_num.astype(np.float64)
     # min-max normalisation
     M = np.vstack((a_num, b_num))
     # assuming no NaN is returned - no missing feature
@@ -190,6 +192,8 @@ def gower_dist_numerical(
     Returns:
         np.float -- gower distance of numerical features
     """
+    a_num = a_num.astype(np.float64)
+    b_num = b_num.astype(np.float64)
     # assuming no NaN is returned - no missing feature
     ranges = np.abs(max_vals - min_vals)
     feat_w_range = ranges != 0
