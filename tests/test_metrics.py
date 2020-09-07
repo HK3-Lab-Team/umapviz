@@ -58,6 +58,13 @@ class DescribeMetrics:
                 np.array([0.5, 0.5, 1, 1]),
                 1.5,
             ),
+            # points/elements having one component with much higher value than the other components
+            (
+                np.array([100, 2, 3, 4]),
+                np.array([2, 2, 3, 4]),
+                np.array([1, 1, 1, 1]),
+                1,
+            ),
         ],
     )
     def test_gower_dist_numerical_old(self, a_num, b_num, weights, expected_metric):
@@ -132,6 +139,42 @@ class DescribeMetrics:
                 np.array([1, 2, 3, 4]),
                 np.array([2, 2, 3, 4]),
                 3,
+            ),
+            # One point with out of scale value
+            (
+                np.array([1, 2, 3, 4]),
+                np.array([100, 2, 3, 4]),
+                np.array([2, 1, 1, 1]),
+                np.array([1, 2, 3, 4]),
+                np.array([2, 2, 3, 4]),
+                495.0,
+            ),
+            # One point with high value, close to the upper bound of the value range
+            (
+                np.array([1, 2, 3, 4]),
+                np.array([100, 2, 3, 4]),
+                np.array([2, 1, 1, 1]),
+                np.array([1, 2, 3, 4]),
+                np.array([100, 2, 3, 4]),
+                5.0,
+            ),
+            # One point with low first component value and a high value of the value range upper bound
+            (
+                np.array([1, 2, 3, 4]),
+                np.array([2, 2, 3, 4]),
+                np.array([2, 1, 1, 1]),
+                np.array([1, 2, 3, 4]),
+                np.array([100, 2, 3, 4]),
+                0.05050505050505051,
+            ),
+            # Same as previous case but with switched `min_vals` and `max_vals`
+            (
+                np.array([1, 2, 3, 4]),
+                np.array([2, 2, 3, 4]),
+                np.array([2, 1, 1, 1]),
+                np.array([100, 2, 3, 4]),
+                np.array([1, 2, 3, 4]),
+                0.050505050505050275,
             ),
         ],
     )
