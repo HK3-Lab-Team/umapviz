@@ -35,7 +35,7 @@ install_requires = [
     "hdbscan",
     "umap-learn",
 ]
-test_requires = ["pytest"]
+test_requires = ["pytest", "coverage", "pytest-cov", "coveralls"]
 
 setuptools.setup(
     name="umapviz",
