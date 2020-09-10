@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 
 from pd_extras.dataframe_with_info import import_df_with_info_from_file
-from src.umapviz.umap_exp import UmapExperiment
-from src.umapviz.umap_metrics import tanimoto_gower
+from umapviz.umap_exp import UmapExperiment
+from umapviz.umap_metrics import tanimoto_gower
 
 logging.basicConfig(
     format="%(asctime)s \t %(levelname)s \t Module: %(module)s \t %(message)s ",
@@ -36,8 +36,8 @@ TOOLTIPS = [
     ("study_UID", "@study_uid"),
 ]
 # INSERT APPROPRIATE DATA DIRECTORY
-CWD = Path(os.path.abspath(os.path.dirname("__file__"))).parent
-DATA_PATH = CWD / "umap_analysis" / "data"
+CWD = Path(os.path.abspath(os.path.dirname("__file__"))).parents[1]
+DATA_PATH = CWD / "smvet" / "data" / "output_data" / "ordinal_encoded"
 df_info = import_df_with_info_from_file(DATA_PATH / "df_ordinal_pat")
 
 df_info.metadata_as_features = True
