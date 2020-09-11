@@ -4,7 +4,8 @@ from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 from hdbscan import HDBSCAN
-from pd_extras.dataframe_with_info import DataFrameWithInfo
+
+from trousse.dataframe_with_info import DataFrameWithInfo
 
 from .umap_exp import UmapExperiment
 from .umap_metrics import tanimoto_gower

@@ -23,7 +23,7 @@ thisdir = os.path.dirname(__file__)
 init_py = ascii_bytes_from(thisdir, "src", "umapviz", "__init__.py")
 readme = ascii_bytes_from(thisdir, "README.md")
 # This allows users to check installed version with:
-# `python -c 'from pd_extras import __version__; print(__version__)'`
+# `python -c 'from umapviz import __version__; print(__version__)'`
 version = re.search('__version__ = "([^"]+)"', init_py).group(1)
 
 install_requires = [
@@ -34,6 +34,7 @@ install_requires = [
     "numba",
     "hdbscan",
     "umap-learn",
+    "pytrousse @ http://github.com/HK3-Lab-Team/pytrousse/tarball/master#egg=pytrousse-0.0.2",
 ]
 test_requires = ["pytest", "coverage", "pytest-cov", "coveralls"]
 

@@ -8,7 +8,8 @@ import numpy as np
 import pandas as pd
 from bokeh import palettes
 from bokeh.models import ColumnDataSource
-from pd_extras.dataframe_with_info import DataFrameWithInfo
+
+from trousse.dataframe_with_info import DataFrameWithInfo
 
 MARKERS_DICT = {
     0: {0: "circle", 1: "circle_cross"},
@@ -744,9 +745,9 @@ class UmapBokeh:
 if __name__ == "__main__":
     import logging
 
-    from pd_extras.utils.dataframe_with_info import (
+    from trousse.utils.dataframe_with_info import (
         DataFrameWithInfo,
-        import_df_with_info_from_file,
+        read_file,
     )
 
     logging.basicConfig(
@@ -756,9 +757,8 @@ if __name__ == "__main__":
     )
 
     # df_correct_dir = '/home/lorenzo-hk3lab/WorkspaceHK3Lab/smvet/data/data_dump'
-    # df_correct = import_df_with_info_from_file(df_correct_dir)
 
-    df_correct = import_df_with_info_from_file(
+    df_correct = read_file(
         filename="/home/lorenzo-hk3lab/WorkspaceHK3Lab/smvet/df_join_2"
     )
 
