@@ -34,7 +34,7 @@ install_requires = [
     "numba",
     "hdbscan",
     "umap-learn",
-    "pytrousse @ https://github.com/HK3-Lab-Team/pytrousse/tarball/db904a2d0404328640e4c616f2aa58d3d928733f#egg=pytrousse-0.0.3",
+    "pytrousse @ https://github.com/HK3-Lab-Team/pytrousse/tarball/stable#egg=pytrousse",
 ]
 test_requires = ["pytest", "coverage", "pytest-cov", "coveralls"]
 
