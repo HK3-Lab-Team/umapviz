@@ -109,19 +109,20 @@ class UmapClustering(UmapExperiment):
             marker_size=marker_size,
             legend_location=legend_location,
         )
-        # This will be set as 'train_test_split_ratio' attribute value only after clustering because
-        # HDBSCAN does not support prediction on test set.
+        # This will be set as 'train_test_split_ratio' attribute value only after
+        # clustering because HDBSCAN does not support prediction on test set.
         # So the splitting (by method '_prepare_data') will occurr only after clustering
         self.train_test_split_ratio_cluster = train_test_split_ratio
 
         # Initialize internal variables
 
-        # 'self._train_umap_data' and 'self._train_notna_full_features_df' will be used even
-        # if 'train_test_split_ratio' = 0
+        # 'self._train_umap_data' and 'self._train_notna_full_features_df' will be used
+        # even if 'train_test_split_ratio' = 0
         self._train_umap_data, self._train_notna_full_features_df = None, None
         self._test_umap_data, self._test_notna_full_features_df = None, None
 
-        # These will store the embeddings generated for clustering, so they contain more dimensions
+        # These will store the embeddings generated for clustering, so they contain more
+        # dimensions
         self.reducer_cluster, self.cluster_data, self.test_embedding_cluster = (
             None,
             None,
@@ -146,8 +147,8 @@ class UmapClustering(UmapExperiment):
         cluster_metric_kwds: Dict[str, Any] = None,
     ):
         """
-        This method is to identify cluster labels using HDBSCAN after a partial dimensionality
-        reduction (UMAP) (in order to have better cluster computation).
+        This method is to identify cluster labels using HDBSCAN after a partial
+        dimensionality reduction (UMAP) (in order to have better cluster computation).
 
         To select HDBSCAN algorithm parameters, see docs:
         https://hdbscan.readthedocs.io/en/latest/parameter_selection.html
@@ -155,19 +156,20 @@ class UmapClustering(UmapExperiment):
         Parameters
         ----------
         min_cluster_size: int
-            This is a parameter from hdbscan.HDBSCAN algorithm. From docs: "Set it to the smallest
-            size grouping that you wish to consider a cluster"
+            This is a parameter from hdbscan.HDBSCAN algorithm. From docs: "Set it to
+            the smallest size grouping that you wish to consider a cluster"
         use_umap_preprocessing: bool
-            Option to choose whether to reduce the data dimensionality by using UMAP (with metric specified
-            during instantiation). If True, this may help in finding clusters because it makes samples closer
-            (higher density helps HDBSCAN algorithm). On the other hand the sample density (distances)
-            is not preserved by UMAP algorithm so if the option is set to True, HDBSCAN is not really
-            detecting clusters: only UMAP is.
+            Option to choose whether to reduce the data dimensionality by using UMAP
+            (with metric specified during instantiation). If True, this may help in
+            finding clusters because it makes samples closer (higher density helps
+            HDBSCAN algorithm). On the other hand the sample density (distances) is not
+            preserved by UMAP algorithm so if the option is set to True, HDBSCAN is not
+            really detecting clusters: only UMAP is.
         umap_components: int
-            UMAP embedding number of dimensions. Higher values lead to more dimensional embeddings and lower
-            density, but the HDBSCAN algorithm has a more important role in identifying the clusters
-            (otherwise UMAP is already separating data into clusters).
-            Default set to 10.
+            UMAP embedding number of dimensions. Higher values lead to more dimensional
+            embeddings and lower density, but the HDBSCAN algorithm has a more important
+            role in identifying the clusters (otherwise UMAP is already separating data
+            into clusters). Default set to 10.
         umap_min_distance: float
             Minimum distance used for UMAP algorithm.
         umap_n_neighbors: int
@@ -175,9 +177,10 @@ class UmapClustering(UmapExperiment):
         min_samples
         cluster_selection_epsilon
         cluster_metric: function
-            This is a function which calculates the distances between two vectors according to some
-            metric_kwds that can be defined and passed. This is used by HDBSCAN algorithm to compute distances.
-            This function should be written according to UMAP/HDBSCAN documentations (as a numba.njit function)
+            This is a function which calculates the distances between two vectors
+            according to some metric_kwds that can be defined and passed. This is used
+            by HDBSCAN algorithm to compute distances. This function should be written
+            according to UMAP/HDBSCAN documentations (as a numba.njit function)
         alpha
         p
         algorithm
@@ -191,11 +194,13 @@ class UmapClustering(UmapExperiment):
         """
         if use_umap_preprocessing:
 
-            # OPTION 1. Using UMAP to reduce data dimensions for more effective HDBSCAN clustering results
+            # OPTION 1. Using UMAP to reduce data dimensions for more effective HDBSCAN
+            # clustering results
 
             if umap_components is None:
                 logger.error(
-                    "No umap_components argument specified. This is required for using UMAP preprocessing"
+                    "No umap_components argument specified. This is required for using "
+                    "UMAP preprocessing"
                 )
             if umap_min_distance is None:
                 umap_min_distance = self.min_distance
@@ -213,8 +218,8 @@ class UmapClustering(UmapExperiment):
                 )
 
             if cluster_metric is None:
-                # We can use 'tanimoto_gower' metric because the UMAP embeddings are all numeric
-                # and they need to be normalized
+                # We can use 'tanimoto_gower' metric because the UMAP embeddings are all
+                # numeric and they need to be normalized
                 cluster_metric = tanimoto_gower
                 cluster_metric_kwds = _get_metric_kwds_umap_embeddings(
                     self.cluster_data
@@ -223,11 +228,13 @@ class UmapClustering(UmapExperiment):
                 cluster_metric_kwds = {}
 
         else:
-            # OPTION 2. Using HDBSCAN algorithm only to see differences between this and UMAP algorithm
+            # OPTION 2. Using HDBSCAN algorithm only to see differences between this and
+            # UMAP algorithm
 
             self.cluster_data = self._remove_nan()
 
-            # These two are to make possible to specify a different metric and metric_kwds for clustering
+            # These two are to make possible to specify a different metric and
+            # metric_kwds for clustering
             # (instead of using the same as UMAP)
             if cluster_metric is None:
                 assert (
@@ -235,7 +242,8 @@ class UmapClustering(UmapExperiment):
                 ), "fit() method has not been called, so 'metric' attribute is None"
                 cluster_metric = self.metric
             if cluster_metric_kwds is None:
-                # If the attribute has not been defined, the metric_kwds are set for 'tanimoto_gower' custom metric
+                # If the attribute has not been defined, the metric_kwds are set for
+                # 'tanimoto_gower' custom metric
                 if self.metric_kwds is None:
                     self.metric_kwds = self._get_tanimoto_gower_metric_kwds(
                         self.cluster_data
@@ -270,45 +278,48 @@ class UmapClustering(UmapExperiment):
     ):
         """
         Plot bokeh.figure with UMAP embeddings according to the instance attributes.
-        This is different from plot method because it will color the plot samples based on the cluster_labels
-        (i.e. self._clustering_labels attribute) (not on feature_to_color).
-        Different markers are assigned for each combination of the features in "multi_marker_feats" argument.
+        This is different from plot method because it will color the plot samples based
+        on the cluster_labels (i.e., self._clustering_labels attribute)
+        (not on feature_to_color). Different markers are assigned for each combination
+        of the features in "multi_marker_feats" argument.
 
-        The function will first validate the features in order to verify that the features marked in the plot
-        (i.e. "feature_to_color" or "multi_feat_to_combine_partit_list") are not included in UMAP fitting
+        The function will first validate the features in order to verify that the
+        features marked in the plot (i.e., "feature_to_color" or
+        "multi_feat_to_combine_partit_list") are not included in UMAP fitting
 
         Parameters
         ----------
         multi_marker_feats: Tuple
 
         return_plot: bool
-            If set to True, no plot will be shown, but a bokeh.figure instance 'bk_plot' will be returned.
-            If set to False, the plot will be shown
+            If set to True, no plot will be shown, but a bokeh.figure instance 'bk_plot'
+            will be returned. If set to False, the plot will be shown
 
         Returns
         -------
         bk_plot: bokeh.plotting.figure
-            This is None if 'return_plot' argument is set to False. Otherwise an instance of bokeh.plotting.figure
-            will be returned. This can be shown by using bokeh.plotting.show(bk_plot),
-            or it can be put into a grid.
+            This is None if 'return_plot' argument is set to False. Otherwise an
+            instance of bokeh.plotting.figure will be returned. This can be shown by
+            using bokeh.plotting.show(bk_plot), or it can be put into a grid.
         """
         if self.clustering_labels is None or self.cluster_data is None:
             logger.error(
-                "The method .clustering() needs to be called before this method so that HDBSCAN "
-                "algorithm is performed with appropriate arguments and clustering_labels are "
-                "computed."
+                "The method .clustering() needs to be called before this method so that "
+                "HDBSCAN algorithm is performed with appropriate arguments and "
+                "clustering_labels are computed."
             )
         else:
-            # We use the embedding obtained with previous UMAP (with "umap_component" dimensions)
-            # as input for the new dimensionality reduction up to 2-Dimensions
+            # We use the embedding obtained with previous UMAP (with "umap_component"
+            # dimensions) as input for the new dimensionality reduction up to
+            # 2-Dimensions
             self._train_umap_data = self.cluster_data
 
-        # Now we set this attribute so that 'self.fit' method will finally split train and test set
-        # (after cluster labels computation)
+        # Now we set this attribute so that 'self.fit' method will finally split train
+        # and test set (after cluster labels computation)
         self.train_test_split_ratio = self.train_test_split_ratio_cluster
 
-        # Fit UMAP in order to get 2D embedding. We need to use the N-dimensional data from
-        # df_info because with tanimoto gower we cannot specify which features in
+        # Fit UMAP in order to get 2D embedding. We need to use the N-dimensional data
+        # from df_info because with tanimoto gower we cannot specify which features in
         # self.embedding_cluster are categorical, boolean, numeric,...
         self.embedding, self.test_embedding = self.fit_transform(
             n_components=2, repeat_fitting=True
