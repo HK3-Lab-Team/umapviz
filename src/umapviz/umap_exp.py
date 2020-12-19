@@ -352,8 +352,8 @@ class UmapExperiment:
                         "'df_info.df' attribute. So it will not be considered in "
                         "further analysis"
                     )
-            # Concatenate the features with few NaN (this way the umap_data will have the
-            # same order as given by __iter__ method from FeatureList class
+            # Concatenate the features with few NaN (this way the umap_data will have
+            # the same order as given by __iter__ method from FeatureList class
             umap_data = pd.concat(
                 [umap_data, self.df_info.df[feat_list_notnan]], axis=1
             )

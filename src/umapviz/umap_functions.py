@@ -175,7 +175,7 @@ def get_umap_embeddings(
     return reducer, embedding, test_embedding
 
 
-def plot_umap(
+def plot_umap(  # noqa: C901
     embedding: np.ndarray,
     df_full_feat: DataFrameWithInfo,
     umap_params_str: str,
@@ -204,9 +204,9 @@ def plot_umap(
     1. 'multi_feat_to_combine_partit_list' -> List of columns which will be combined
     together in order to define many partitions of the embedding -> These partitions
     will be distinguished by different markers
-    2. 'feature_to_color' -> These column values will be used for every partition defined
-    in 1. in order to distinguish some sub-partitions which will be colored differently
-    (using color_tuple if provided or other categorical preset palettes)
+    2. 'feature_to_color' -> These column values will be used for every partition
+    defined in 1. in order to distinguish some sub-partitions which will be colored
+    differently (using color_tuple if provided or other categorical preset palettes)
     Optionally, you may provide a test_set with arguments "test_embedding",
     "test_df_full_feat" that will be drawn upon the (training) dataset to test the UMAP
     algorithm

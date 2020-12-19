@@ -58,7 +58,8 @@ class DescribeMetrics:
                 np.array([0.5, 0.5, 1, 1]),
                 1.5,
             ),
-            # points/elements having one component with much higher value than the other components
+            # points/elements having one component with much higher value than the other
+            # components
             (
                 np.array([100, 2, 3, 4]),
                 np.array([2, 2, 3, 4]),
@@ -158,7 +159,8 @@ class DescribeMetrics:
                 np.array([100, 2, 3, 4]),
                 5.0,
             ),
-            # One point with low first component value and a high value of the value range upper bound
+            # One point with low first component value and a high value of the value
+            # range upper bound
             (
                 np.array([1, 2, 3, 4]),
                 np.array([2, 2, 3, 4]),
