@@ -170,7 +170,8 @@ class UmapBokeh:
                 if enc_to_str_map_single_feat is None:
                     logging.info(
                         "The feature is not categorical and/or not encoded and/or no "
-                        "mapping has been provided. Partitions will have numerical names"
+                        "mapping has been provided. Partitions will have numerical "
+                        "names"
                     )
                     self._enc_to_str_map_multi_feat[feat] = {}
                 else:
@@ -633,10 +634,10 @@ class UmapBokeh:
             and the other part will be split in partitions according to the other
             arguments. If you want the DataFrame to considered all together with no
             grey/background points, do not use this argument. This is a tuple where the
-            first element is the name of the column that will be used. The second element
-            is a Tuple containing all the values that will be included in the plot.
-            The rows that have other values for that column will be plotted as grey
-            points.
+            first element is the name of the column that will be used. The second
+            element is a Tuple containing all the values that will be included in the
+            plot. The rows that have other values for that column will be plotted as
+            grey points.
              E.g. ('BREED', ('LABRADOR RETRIEVER', 'MONGREL'))
         @param color_list: This is the list of colors to be used to distinguish
             'feature_to_color' values

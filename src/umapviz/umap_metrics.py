@@ -130,8 +130,8 @@ def tanimoto_gower_old(
             (default: {None})
         numerical_features {np.ndarray} -- array of indices for numerical features
             (default: {None})
-        feature_weights {np.ndarray} -- array of weights for features (to be used in gower)
-            (default: {None})
+        feature_weights {np.ndarray} -- array of weights for features (to be used in
+            gower) (default: {None})
 
     Returns:
         float -- Combined Product metric distance

@@ -130,7 +130,7 @@ class UmapClustering(UmapExperiment):
         )
         self.hdbscan_fit, self.clustering_labels = None, None
 
-    def clustering(
+    def clustering(  # noqa: C901
         self,
         min_cluster_size: int,
         use_umap_preprocessing: bool = True,
@@ -304,8 +304,8 @@ class UmapClustering(UmapExperiment):
         """
         if self.clustering_labels is None or self.cluster_data is None:
             logger.error(
-                "The method .clustering() needs to be called before this method so that "
-                "HDBSCAN algorithm is performed with appropriate arguments and "
+                "The method .clustering() needs to be called before this method so that"
+                " HDBSCAN algorithm is performed with appropriate arguments and "
                 "clustering_labels are computed."
             )
         else:
