@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 import types
 from dataclasses import dataclass
@@ -8,7 +10,8 @@ import numpy as np
 import pandas as pd
 import sklearn
 
-from trousse.dataframe_with_info import DataFrameWithInfo, copy_df_info_with_new_df
+from trousse.dataframe_with_info import (DataFrameWithInfo,
+                                         copy_df_info_with_new_df)
 
 from .umap_functions import get_umap_embeddings, plot_umap
 

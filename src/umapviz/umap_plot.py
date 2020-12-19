@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import copy
 from typing import Dict, Tuple, Union
 

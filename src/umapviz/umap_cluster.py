@@ -1,10 +1,12 @@
+# encoding: utf-8
+
 import logging
 import types
 from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
-from hdbscan import HDBSCAN
 
+from hdbscan import HDBSCAN
 from trousse.dataframe_with_info import DataFrameWithInfo
 
 from .umap_exp import UmapExperiment
