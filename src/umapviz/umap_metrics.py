@@ -1,6 +1,9 @@
+# encoding: utf-8
+
 import numba as nb
 import numpy as np
 from numpy.linalg import norm
+
 from umap.distances import rogers_tanimoto
 
 # -------------------------------------------
