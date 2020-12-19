@@ -25,8 +25,10 @@ def prepare_umap_data(
     PREPARING DATA FOR UMAP
 
     Selecting:
-    - only the features in col_list of df (or med_exam_col_list if col_list is not provided)
-    - only the features with a number of not_NaN higher than not_nan_percentage_threshold
+    - only the features in col_list of df (or med_exam_col_list if col_list is not
+    provided)
+    - only the features with a number of not_NaN higher than
+    not_nan_percentage_threshold
     - only the rows with no NaN in the remaining features
     Splitting into train-test set if test_over_set_ratio != 0
 
@@ -35,16 +37,17 @@ def prepare_umap_data(
     df_info: DataFrameWithInfo
         DataFrame containing data with all the feature
     col_list: Tuple
-        List of columns that will be used by UMAP to compute embeddings. This specifies which features will
-        be contained in the returned train_umap_data and test_umap_data. These features will be selected to choose
-        the ones with few NaNs based on "not_nan_percentage_threshold" parameter. The order of these
+        List of columns that will be used by UMAP to compute embeddings. This specifies
+        which features will be contained in the returned train_umap_data and
+        test_umap_data. These features will be selected to choose the ones with few NaNs
+        based on "not_nan_percentage_threshold" parameter. The order of these
         columns will remain the same in train_umap_data and test_umap_data
     not_nan_percentage_threshold: float
-        Every feature, which will contain less than this precentage of not-NaN, will not be considered in the returned
-        data used to compute embeddings by UMAP
+        Every feature, which will contain less than this precentage of not-NaN, will not
+        be considered in the returned data used to compute embeddings by UMAP
     test_over_set_ratio: float
-        This specifies the ratio between training and test set. It corresponds to the size of test set divided by the
-        size of the whole set
+        This specifies the ratio between training and test set. It corresponds to the
+        size of test set divided by the size of the whole set
 
     Returns
     -------
@@ -52,14 +55,14 @@ def prepare_umap_data(
         the result of above selection, with only the features that will be embedded
         by UMAP (no metadata/demographic data)
     train_notna_full_features_df: DataFrameWithInfo
-        the result of above selection (exactly same rows of train_umap_data), with full data,
-        and index reset
+        the result of above selection (exactly same rows of train_umap_data), with full
+        data, and index reset
     test_umap_data: DataFrameWithInfo
         the result of above selection, with only the features that will be embedded
         by UMAP (no metadata/demographic data)
     test_notna_full_features_df: DataFrameWithInfo
-        the result of above selection (exactly same rows of test_umap_data), with full data,
-        and index reset
+        the result of above selection (exactly same rows of test_umap_data), with full
+        data, and index reset
     """
     feat_list_notnan = []
     many_nan_features = []
@@ -128,8 +131,8 @@ def get_umap_embeddings(
     test_df_info: DataFrameWithInfo = None,
 ) -> Tuple[umap.UMAP, np.ndarray, np.ndarray]:
     """
-    The function will fit the UMAP algorithm on 'train_df' and it will then use the model to transform
-    train and test set.
+    The function will fit the UMAP algorithm on 'train_df' and it will then use the
+    model to transform train and test set.
 
     Parameters
     ----------
@@ -196,43 +199,52 @@ def plot_umap(
     filename_title_prefix="",
 ):
     """
-    This method will create a Bokeh plot with UMAP data. The different series of points will be defined
-    combining two arguments:
-    1. 'multi_feat_to_combine_partit_list' -> List of columns which will be combined together in
-        order to define many partitions of the embedding -> These partitions will be
-        distinguished by different markers
-    2. 'feature_to_color' -> These column values will be used for every partition defined in 1.
-        in order to distinguish some sub-partitions which will be colored differently (using
-        color_tuple if provided or other categorical preset palettes)
-    Optionally, you may provide a test_set with arguments "test_embedding", "test_df_full_feat" that will be
-    drawn upon the (training) dataset to test the UMAP algorithm
+    This method will create a Bokeh plot with UMAP data. The different series of points
+    will be defined combining two arguments:
+    1. 'multi_feat_to_combine_partit_list' -> List of columns which will be combined
+    together in order to define many partitions of the embedding -> These partitions
+    will be distinguished by different markers
+    2. 'feature_to_color' -> These column values will be used for every partition defined
+    in 1. in order to distinguish some sub-partitions which will be colored differently
+    (using color_tuple if provided or other categorical preset palettes)
+    Optionally, you may provide a test_set with arguments "test_embedding",
+    "test_df_full_feat" that will be drawn upon the (training) dataset to test the UMAP
+    algorithm
 
-    @param df_full_feat: DataFrameWithInfo instance containing additional values used to partition the point
-        series, to color them, and to show data with HoverTool
-    @param embedding: np.ndarray containing the (x, y) values of the points to be plotted
+    @param df_full_feat: DataFrameWithInfo instance containing additional values used to
+        partition the point series, to color them, and to show data with HoverTool
+    @param embedding: np.ndarray containing the (x, y) values of the points to be
+        plotted
     @param umap_params_str: String containing infos about umap parameters applied
-    @param feature_to_color: This will be the df_info column (str) that define the color of the series
-        according to its values (the colors can be listed by color_list argument)
-    @param multi_marker_feats: These column_names/features will be used to define different
-        series of points (described and listed in legend). Their unique values combination will define
-        different partitions that will be distinguishable by markers or colors.
+    @param feature_to_color: This will be the df_info column (str) that define the color
+        of the series according to its values (the colors can be listed by color_list
+        argument)
+    @param multi_marker_feats: These column_names/features will be used to define
+        different series of points (described and listed in legend). Their unique values
+        combination will define different partitions that will be distinguishable by
+        markers or colors.
     @param enc_value_to_str_map: Dict[Dict]
-        This is a map to connect the encoded values to the original ones. It will be a Dict of Dicts
-        because the first level keys identify the features with encoded values, and the second level
-        dict is the actual map
-    @param test_df_full_feat: DataFrameWithInfo -> Test_dataset containing values related to 'test_embedding'
-        samples used to partition the point series, to color them, and to show data with HoverTool
-    @param test_embedding: np.ndarray -> Test_dataset containing the (x, y) values of the points to be plotted
-    @param group_values_to_be_shown: Tuple[str, Tuple] -> This is required if you want to plot a part
-        of DataFrame as a Serie of grey points (as background), and the other part will be split in
-        partitions according to the other arguments. If you want the DataFrame to considered all together
-        with no grey/background points, do not use this argument.
-        This is a tuple where the first element is the name of the column that will be used.
-        The second element is a Tuple containing all the values that will be included in the plot.
-        The rows that have other values for that column will be plotted as grey points.
-         E.g. ('BREED', ('LABRADOR RETRIEVER', 'MONGREL'))
-    @param legend_location: str -> Location of the legend in the plot. Default set to 'bottom_left'
-    @param color_tuple: This is the list of colors to be used to distinguish 'feature_to_color' values
+        This is a map to connect the encoded values to the original ones. It will be a
+        Dict of Dicts because the first level keys identify the features with encoded
+        values, and the second level dict is the actual map
+    @param test_df_full_feat: DataFrameWithInfo -> Test_dataset containing values
+        related to 'test_embedding' samples used to partition the point series, to
+        color them, and to show data with HoverTool
+    @param test_embedding: np.ndarray -> Test_dataset containing the (x, y) values of
+        the points to be plotted
+    @param group_values_to_be_shown: Tuple[str, Tuple] -> This is required if you want
+        to plot a part of DataFrame as a Serie of grey points (as background), and the
+        other part will be split in partitions according to the other arguments. If you
+        want the DataFrame to considered all together with no grey/background points, do
+        not use this argument. This is a tuple where the first element is the name of
+        the column that will be used. The second element is a Tuple containing all the
+        values that will be included in the plot. The rows that have other values for
+        that column will be plotted as grey points.
+        E.g. ('BREED', ('LABRADOR RETRIEVER', 'MONGREL'))
+    @param legend_location: str -> Location of the legend in the plot. Default set to
+        'bottom_left'
+    @param color_tuple: This is the list of colors to be used to distinguish
+        'feature_to_color' values
     @param test_color_tuple
     @param tools
     @param tooltip_feats
@@ -252,7 +264,8 @@ def plot_umap(
     # Create a plot for each breed
     umap_plot_per_breed = {}
 
-    # Loop over every subgroup of values you chose from 'feature_column_with_subgroups' column
+    # Loop over every subgroup of values you chose from 'feature_column_with_subgroups'
+    # column
     for subgroup in group_values_to_be_shown[1]:
         # Create an instance of umap_bokeh_plot
         umap_plot = UmapBokeh(
@@ -264,7 +277,8 @@ def plot_umap(
         if multi_marker_feats is None:
             multi_marker_feats = ()
 
-        # Calculate the sample count for the training set to be inserted in the bokeh figure title
+        # Calculate the sample count for the training set to be inserted in the bokeh
+        # figure title
         if group_values_to_be_shown[0] is not None:
             sample_count_in_subgroup = df_full_feat.df[
                 df_full_feat.df[group_values_to_be_shown[0]].isin(subgroup)
@@ -284,6 +298,10 @@ def plot_umap(
             # Check if test_set has been provided
             if embed is not None:
                 # Add multiple series to the figure according to the partitions
+                title = (
+                    f"{filename_title_prefix}_{subgroup_str} "
+                    f"({sample_count_in_subgroup})_{umap_params_str}",
+                )
                 umap_plot_per_breed[
                     subgroup_str
                 ] = umap_plot.add_series_combine_multi_feat(
@@ -292,7 +310,7 @@ def plot_umap(
                     feature_to_color=feature_to_color,
                     multi_marker_feats=multi_marker_feats,
                     enc_value_to_str_map_multi_feat=enc_value_to_str_map,
-                    title=f"{filename_title_prefix}_{subgroup_str} ({sample_count_in_subgroup})_{umap_params_str}",
+                    title=title,
                     group_values_to_be_shown=group_values_to_be_shown,
                     color_list=colors,
                     legend_location=legend_location,
@@ -309,9 +327,11 @@ def plot_umap(
             if filename_title_prefix is None:
                 filename_title_prefix = f"UMAP_{subgroup_str}_{umap_params_str}.html"
 
-            bk.output_file(
-                filename=f"{filename_title_prefix.replace('.html', '')}_{subgroup_str}_{umap_params_str}.html"
+            filename = (
+                f"{filename_title_prefix.replace('.html', '')}"
+                "_{subgroup_str}_{umap_params_str}.html"
             )
+            bk.output_file(filename=filename)
             bk.show(umap_plot_per_breed[subgroup_str])
 
     if return_plot:
@@ -338,46 +358,55 @@ def calculate_plot_umap(
     filename_prefix=None,
 ):
     """
-    This function is meant to use these arguments to calculate and make only a single plot.
-    It will show the plot and, if filename argument is provided, it will save
+    This function is meant to use these arguments to calculate and make only a single
+    plot. It will show the plot and, if filename argument is provided, it will save
     the plot in a html file.
-    This method will create a Bokeh plot with UMAP data. The different series of points will be defined
-    combining two arguments:
-    1. 'multi_feat_to_combine_partit_list' -> List of columns which will be combined together in
-        order to define many partitions of the embedding -> These partitions will be
-        distinguished by different markers
-    2. 'feature_to_color' -> These column values will be used for every partition defined in 1.
-        in order to distinguish some sub-partitions which will be colored differently (using
-        color_tuple if provided or other categorical preset palettes)
-    Optionally, you may provide a test_set with arguments "test_embedding", "test_df_full_feat" that will be
-    drawn upon the (training) dataset to test the UMAP algorithm
+    This method will create a Bokeh plot with UMAP data. The different series of points
+    will be defined combining two arguments:
+    1. 'multi_feat_to_combine_partit_list' -> List of columns which will be combined
+        together in order to define many partitions of the embedding -> These partitions
+        will be distinguished by different markers
+    2. 'feature_to_color' -> These column values will be used for every partition
+        defined in 1. in order to distinguish some sub-partitions which will be colored
+        differently (using color_tuple if provided or other categorical preset palettes)
+    Optionally, you may provide a test_set with arguments "test_embedding",
+    "test_df_full_feat" that will be drawn upon the (training) dataset to test the
+    UMAP algorithm
 
-    @param df_exams_only_umap: DataFrameWithInfo instance containing only the features that will be used to create UMAP
-    @param df_full_feat: DataFrameWithInfo instance containing values related to 'test_df_exams_only_umap'
-        samples. It is used to partition the point series, to color them, and to show data with HoverTool
+    @param df_exams_only_umap: DataFrameWithInfo instance containing only the features
+        that will be used to create UMAP
+    @param df_full_feat: DataFrameWithInfo instance containing values related to
+        'test_df_exams_only_umap' samples. It is used to partition the point series, to
+        color them, and to show data with HoverTool
     @param min_dist: Minimum distance -> important parameter for UMAP algorithm
-    @param n_neighbors: Number of nearest neighbors -> important parameter for UMAP algorithm
-    @param feature_to_color: This will be the df_info column (str) that define the color of the series
-        according to its values (the colors can be listed by color_list argument
-    @param multi_feat_to_combine_partit_list: These column_names/features will be used to define different
-        series of points (described and listed in legend). Their unique values combination will define
-        different partitions that will be distinguishable by markers or colors.
-    @param test_df_full_feat: DataFrameWithInfo -> Test_dataset containing values related to 'test_df_exams_only_umap'
-        samples. It is used to partition the point series, to color them, and to show data with HoverTool
-    @param test_df_exams_only_umap: DataFrameWithInfo -> Test_dataset containing only the features that
-        will be used to create UMAP
+    @param n_neighbors: Number of nearest neighbors -> important parameter for UMAP
+        algorithm
+    @param feature_to_color: This will be the df_info column (str) that define the color
+        of the series according to its values (the colors can be listed by color_list
+        argument
+    @param multi_feat_to_combine_partit_list: These column_names/features will be used
+        to define different series of points (described and listed in legend). Their
+        unique values combination will define different partitions that will be
+        distinguishable by markers or colors.
+    @param test_df_full_feat: DataFrameWithInfo -> Test_dataset containing values
+        related to 'test_df_exams_only_umap' samples. It is used to partition the point
+        series, to color them, and to show data with HoverTool
+    @param test_df_exams_only_umap: DataFrameWithInfo -> Test_dataset containing only
+        the features that will be used to create UMAP
     @param test_color_tuple: Color Tuple to color the test set
     @param metric: Metric used by UMAP in the calculations
     @param random_state: Initial Random State to fix UMAP calculations
-    @param group_values_to_be_shown: Tuple[str, Tuple] -> This is required if you want to plot a part
-        of DataFrame as a Serie of grey points (as background), and the other part will be split in
-        partitions according to the other arguments. If you want the DataFrame to considered all together
-        with no grey/background points, do not use this argument.
-        This is a tuple where the first element is the name of the column that will be used.
-        The second element is a Tuple containing all the values that will be included in the plot.
-        The rows that have other values for that column will be plotted as grey points.
-         E.g. ('BREED', ('LABRADOR RETRIEVER', 'MONGREL'))
-    @param color_tuple: This is the list of colors to be used to distinguish 'feature_to_color' values
+    @param group_values_to_be_shown: Tuple[str, Tuple] -> This is required if you want
+        to plot a part of DataFrame as a Serie of grey points (as background), and the
+        other part will be split in partitions according to the other arguments. If you
+        want the DataFrame to considered all together with no grey/background points,
+        do not use this argument. This is a tuple where the first element is the name of
+        the column that will be used. The second element is a Tuple containing all the
+        values that will be included in the plot. The rows that have other values for
+        that column will be plotted as grey points.
+        E.g. ('BREED', ('LABRADOR RETRIEVER', 'MONGREL'))
+    @param color_tuple: This is the list of colors to be used to distinguish
+        'feature_to_color' values
     @return: No return values
     """
     # Create UMAP embeddings
@@ -423,9 +452,11 @@ def calculate_plot_umap_multi_breed_multi_params(
     filename=None,
 ):
     """
-    :param df_exams_only_umap: This contains only the features that need to be considered by umap algorithm
-    :param df_full_feat: This has the same rows like 'df_exams_only_umap' argument, but it contains more features
-        (like the 'feature_to_color' needed to highlight different partitions)
+    :param df_exams_only_umap: This contains only the features that need to be
+        considered by umap algorithm
+    :param df_full_feat: This has the same rows like 'df_exams_only_umap' argument, but
+        it contains more features (like the 'feature_to_color' needed to highlight
+        different partitions)
     :param feature_to_color: This must contain integers that will be used to color the
         umap points differently according to that value
     """

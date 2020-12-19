@@ -27,7 +27,8 @@ def get_hover_tool(
     hover = bokeh.models.tools.HoverTool()
     if tooltips_list is None:
         features_hover_list = set(tooltip_feats)
-        # Create the list of tuples as hover tooltips with the coordinates as first tooltip
+        # Create the list of tuples as hover tooltips with the coordinates as first
+        # tooltip
         tooltips_list = [
             ("(x,y)", "($x, $y)"),
         ]
@@ -46,14 +47,16 @@ def _get_specific_marker_by_keys(
     partition_id_keys: Tuple[int], markers_dict: Dict = MARKERS_DICT
 ) -> str:
     """
-    This will return a marker based on the combination 'partition_id_keys' of integer which
-    represent the partition ids, so these partitions can be distinguished by markers.
+    This will return a marker based on the combination 'partition_id_keys' of integer
+    which represent the partition ids, so these partitions can be distinguished by
+    markers.
 
-    @param partition_id_keys: Tuple of integers which represent the partition ids, so that each
-        partitions has a different marker
-    @param markers_dict: Dict -> This is a Dict tree containing integer as keys and values for every layer,
-        except the lowest layer where we have the names of the markers that can be used by bokeh.
-        (e.g. see Enum.MARKERS_DICT). By default this is set to Enums.MARKERS_DICT
+    @param partition_id_keys: Tuple of integers which represent the partition ids, so
+        that each partitions has a different marker
+    @param markers_dict: Dict -> This is a Dict tree containing integer as keys and
+        values for every layer, except the lowest layer where we have the names of the
+        markers that can be used by bokeh. (e.g. see Enum.MARKERS_DICT). By default this
+        is set to Enums.MARKERS_DICT
     @return: str -> Name of a marker stored in markers_dict compatible with bokeh
     """
     my_marker = copy.copy(markers_dict)
@@ -66,13 +69,13 @@ def _get_specific_marker_by_keys(
         except KeyError:
             logging.warning(
                 f"You chose too many partitioning levels (i.e. {partitioning_level} "
-                "levels) and there are not enough level in Enums.MARKERS_DICT dictionary. "
-                "We set 'circle' as marker by default."
+                "levels) and there are not enough level in Enums.MARKERS_DICT "
+                "dictionary. We set 'circle' as marker by default."
             )
             return "circle"
-    # We keep on looking the first actual marker name (string) declared at the bottom level of
-    # MARKERS_DICT tree. This is useful when in markers_dict there are more levels than the
-    # length of partition_id_keys (i.e. the number of partitions)
+    # We keep on looking the first actual marker name (string) declared at the bottom
+    # level of MARKERS_DICT tree. This is useful when in markers_dict there are more
+    # levels than the length of partition_id_keys (i.e. the number of partitions)
     while not isinstance(my_marker, str):
         my_marker = my_marker[0]
     return my_marker
@@ -114,27 +117,31 @@ class UmapBokeh:
     ):
         """
         This fills up 'data_dict' argument with default_infos.
-        These will not be added if the option 'add_default_infos_as_hover_tooltips' of the instance is False.
-        This will be set during instantiation.
+        These will not be added if the option 'add_default_infos_as_hover_tooltips' of
+        the instance is False. This will be set during instantiation.
         @param df_with_default_infos: pd.DataFrame containing the columns with default
             infos listed in Enum.DEFAULT_HOVER_TOOLTIPS_LIST
-        @param data_dict: Dictionary with the column name as key, and the pd.Series of the column as value
-            This will be used as data source for the scatter plot serie
-        @return: data_dict -> The dictionary from input where it added the column values from default_infos
+        @param data_dict: Dictionary with the column name as key, and the pd.Series of
+            the column as value. This will be used as data source for the scatter plot
+            serie
+        @return: data_dict -> The dictionary from input where it added the column values
+            from default_infos
         """
         output_dict = data_dict
 
         if self._tooltip_feats:
-            # If needed, we add default_infos to hover_tooltips, listed in Enum.DEFAULT_HOVER_TOOLTIPS_LIST
+            # If needed, we add default_infos to hover_tooltips, listed in
+            # Enum.DEFAULT_HOVER_TOOLTIPS_LIST
             for feat in self._tooltip_feats:
-                # If one of the default_infos is not in df_columns, we will neither consider it nor plot it
+                # If one of the default_infos is not in df_columns, we will neither
+                # consider it nor plot it
                 if feat in df_with_default_infos.columns:
                     output_dict[feat] = df_with_default_infos[feat]
                 else:
                     logging.warning(
-                        f"The default info {feat} that you required for tooltip ('tooltip_feats' "
-                        f"argument) is not among the columns of the df provided. "
-                        f"Its value will not be shown"
+                        f"The default info {feat} that you required for tooltip "
+                        "('tooltip_feats' argument) is not among the columns of the df "
+                        "provided. Its value will not be shown"
                     )
 
         return output_dict
@@ -157,12 +164,13 @@ class UmapBokeh:
     ):
         for feat in feats_to_map:
             if feat not in enc_value_to_str_map_multi_feat:
-                # If no direct map is available, look if there are informations about encoding
+                # If no direct map is available, look if there are informations about
+                # encoding
                 enc_to_str_map_single_feat = df_info.get_encoded_string_values_map(feat)
                 if enc_to_str_map_single_feat is None:
                     logging.info(
-                        "The feature is not categorical and/or not encoded and/or no mapping "
-                        "has been provided. Partitions will have numerical names"
+                        "The feature is not categorical and/or not encoded and/or no "
+                        "mapping has been provided. Partitions will have numerical names"
                     )
                     self._enc_to_str_map_multi_feat[feat] = {}
                 else:
@@ -180,7 +188,8 @@ class UmapBokeh:
         input_color_list: Union[Tuple, None],
     ) -> Union[Tuple, Dict]:
 
-        # Test if 'color_list' argument is appropriate (enough colors for every category) or not provided
+        # Test if 'color_list' argument is appropriate (enough colors for every
+        # category) or not provided
         if input_color_list is None or len(input_color_list) < len(unique_values_list):
             # If 'color_list' argument is not appropriate, create one
             try:
@@ -189,14 +198,15 @@ class UmapBokeh:
                 self._has_colorbar = False
                 return color_list
             except KeyError:
-                # If the palette is not enough, use a continuous palette with LinearColorMapper
-                # and add a ColorBar to the plot
+                # If the palette is not enough, use a continuous palette with
+                # LinearColorMapper and add a ColorBar to the plot
                 logging.warning(
-                    f"The number of unique values ({len(unique_values_list)}) in column {feature_to_color}"
-                    "exceeds number of colors in the palette (20). Will cast to integers and "
-                    "trying with wider Palette."
+                    f"The number of unique values ({len(unique_values_list)}) in column"
+                    "{feature_to_color} exceeds number of colors in the palette (20). "
+                    "Will cast to integers and trying with wider Palette."
                 )
-                # Set the feature_to_color values to int (in order to be mappable into a ColorBar)
+                # Set the feature_to_color values to int (in order to be mappable into
+                # a ColorBar)
                 df.loc[:, feature_to_color] = df[feature_to_color].astype(int)
 
                 max_color_code = df[feature_to_color].max()
@@ -246,9 +256,11 @@ class UmapBokeh:
     ):
         """
 
-        @param df_x_y: Numpy NdArray containing the (x, y) coordinates of the points to be plotted
-        @param df_full_info_partition: A slice of pd.DataFrame containing additional values used to
-            partition the point series, to color them, and to show data with HoverTool
+        @param df_x_y: Numpy NdArray containing the (x, y) coordinates of the points to
+            be plotted
+        @param df_full_info_partition: A slice of pd.DataFrame containing additional
+            values used to partition the point series, to color them, and to show data
+            with HoverTool
         @param feature_to_color:
         @param color: str -> Color of the markers of the serie.
         @param marker: Type of marker
@@ -257,7 +269,8 @@ class UmapBokeh:
         @param fill_color:
         @return: No return values
         """
-        # We select the df_x_y rows based on the index of the elements in df_full_info_slice,
+        # We select the df_x_y rows based on the index of the elements in
+        # df_full_info_slice,
         data_dict = {
             "x": df_x_y[df_full_info_partition.index, 0],
             "y": df_x_y[df_full_info_partition.index, 1],
@@ -299,28 +312,35 @@ class UmapBokeh:
         fill_alpha: float = 0.2,
     ):
         """
-        This method will add some series to the plot. The different series of points will be defined
-        according to the values of the columns 'features_to_partitioned_series'. These series will be
-        distinguished by different markers and they will also be colored (and split) only
-        according to column 'feature_to_color'.
-        @param df_x_y: pd.DataFrame containing the (x, y) values of the points to be plotted
-        @param df_full_info: pd.DataFrame containing additional values used to partition the point
-            series, to color them, and to show data with HoverTool
-        @param feature_to_color: This will be the one that define the color according to its values
-        @param color_list: This is the list of colors to be used to distinguish 'feature_to_color' values
-        @param unique_values_list: Tuple of the unique values of 'feature_to_color' column
-        @param features_to_partitioned_series: These column_names/features will define different
-            series of points (described and listed in legend)
-        @param partition_id_keys: Tuple[int] -> Tuple of integer keys that identify different partitions.
-            It will be used to pick a specific marker from Enum.MARKERS_DICT (it will be created by
-            the function recursions)
-        @param series_legend_label: str -> Title of the serie (it will be created by the function recursions)
+        This method will add some series to the plot. The different series of points
+        will be defined according to the values of the columns
+        'features_to_partitioned_series'. These series will be distinguished by
+        different markers and they will also be colored (and split) only according to
+        column 'feature_to_color'.
+        @param df_x_y: pd.DataFrame containing the (x, y) values of the points to be
+            plotted
+        @param df_full_info: pd.DataFrame containing additional values used to
+            partition the point series, to color them, and to show data with HoverTool
+        @param feature_to_color: This will be the one that define the color according to
+            its values
+        @param color_list: This is the list of colors to be used to distinguish
+            'feature_to_color' values
+        @param unique_values_list: Tuple of the unique values of 'feature_to_color'
+            column
+        @param features_to_partitioned_series: These column_names/features will define
+            different series of points (described and listed in legend)
+        @param partition_id_keys: Tuple[int] -> Tuple of integer keys that identify
+            different partitions. It will be used to pick a specific marker from
+            Enum.MARKERS_DICT (it will be created by the function recursions)
+        @param series_legend_label: str -> Title of the serie (it will be created by
+        the function recursions)
         @param legend_label_prefix: Prefix for the series names in the legend (to be
             distinguishable by other series)
         @return: No return values
         """
         if len(features_to_partitioned_series) > 0:
-            # While we still have features to consider, we need to keep calling this function
+            # While we still have features to consider, we need to keep calling this
+            # function
             # Get name of that feature and remove it from the list
             reduced_features_to_partitioned_series = list(
                 features_to_partitioned_series
@@ -342,7 +362,8 @@ class UmapBokeh:
                 ]
                 # Get string value corresponding to encoded one
                 feat_value = self._map_enc_value_to_str(feat_name, feat_enc_value)
-                # Add the value of the partition to the series title (avoid starting with '-' )
+                # Add the value of the partition to the series title (avoid starting
+                # with '-' )
                 partition_series_title = (
                     str(feat_value)
                     if (series_legend_label == "")
@@ -364,8 +385,9 @@ class UmapBokeh:
                     legend_label_prefix=legend_label_prefix,
                 )
         else:
-            # This is where we combined every feature (except the last one) and we identified a specific
-            # sample partition. So we can elaborate the last feature and the specific partition
+            # This is where we combined every feature (except the last one) and we
+            # identified a specific sample partition. So we can elaborate the last
+            # feature and the specific partition
             self._add_single_feature_scatter_series_from_single_partit(
                 df_x_y=df_x_y,
                 df_full_info_partition=df_full_info,
@@ -396,26 +418,34 @@ class UmapBokeh:
         markers_dict=MARKERS_DICT,
     ):
         """
-        This method will add few series to the plot. The different series of points will be defined
-        according to the values of the only column 'feature_to_color'. The different series will be
-        colored (and split) according to it (using 'color_list').
-        The 'df_full_info_partition' already represents a partition of the df and this partition will
-        be characterized by a specific marker, a 'series_title', and 'partition_id_keys'.
+        This method will add few series to the plot. The different series of points will
+        be defined according to the values of the only column 'feature_to_color'. The
+        different series will be colored (and split) according to it (using
+        'color_list'). The 'df_full_info_partition' already represents a partition of
+        the df and this partition will be characterized by a specific marker, a
+        'series_title', and 'partition_id_keys'.
         @param legend_label_prefix:
-        @param df_x_y: Numpy NdArray containing the (x, y) coordinates of the points to be plotted
-        @param df_full_info_partition: A slice of pd.DataFrame containing additional values used to
-            partition the point series, to color them, and to show data with HoverTool
-        @param feature_to_color: This will be the one that define the color according to its values
-        @param color_list: This is the list of colors to be used to distinguish 'feature_to_color' values
-        @param unique_values_list: Tuple of the unique values of 'feature_to_color' column
+        @param df_x_y: Numpy NdArray containing the (x, y) coordinates of the points to
+            be plotted
+        @param df_full_info_partition: A slice of pd.DataFrame containing additional
+            values used to partition the point series, to color them, and to show data
+            with HoverTool
+        @param feature_to_color: This will be the one that define the color according to
+            its values
+        @param color_list: This is the list of colors to be used to distinguish
+            'feature_to_color' values
+        @param unique_values_list: Tuple of the unique values of 'feature_to_color'
+            column
         @param marker: Type of marker to be used
         @param size: Size of marker to be used
-        @param partition_id_keys: Tuple[int] -> Tuple of integer keys that identify different partitions.
-            It will be used to pick a specific marker from Enum.MARKERS_DICT. If there is no
-            partition, a '0' tuple will be set dy default, so the first marker from
-            Enum.MARKERS_DICT will be used
-        @param markers_dict: Dict -> This is a Dict tree containing integer as keys and values for every layer,
-            except the lowest layer where we have the names of the markers that can be used by bokeh.
+        @param partition_id_keys: Tuple[int] -> Tuple of integer keys that identify
+            different partitions.
+            It will be used to pick a specific marker from Enum.MARKERS_DICT. If there
+            is no partition, a '0' tuple will be set dy default, so the first marker
+            from Enum.MARKERS_DICT will be used
+        @param markers_dict: Dict -> This is a Dict tree containing integer as keys and
+            values for every layer, except the lowest layer where we have the names of
+            the markers that can be used by bokeh.
             (e.g. see Enum.MARKERS_DICT). By default this is set to Enums.MARKERS_DICT
         @param legend_label_prefix: Prefix for the series names in the legend (to be
             distinguishable by other series)
@@ -433,8 +463,9 @@ class UmapBokeh:
             if marker is None:
                 if partition_id_keys is None:
                     logging.error(
-                        "You must provide a marker or a partition_id_keys which will be used "
-                        "to get a marker from Enum.MARKERS_DICT or markers_dict argument"
+                        "You must provide a marker or a partition_id_keys which "
+                        "will be used to get a marker from Enum.MARKERS_DICT or "
+                        "markers_dict argument"
                     )
                 else:
                     # Get a marker based on the partition
@@ -470,31 +501,36 @@ class UmapBokeh:
         markers_dict=MARKERS_DICT,
     ):
         """
-        This method will be used when "self._has_colorbar == True" add few series to the plot. The different
-        series of points will be defined according to the values of the only column 'feature_to_color'.
-         The different series will be
-        colored (and split) according to it (using 'color_list').
-        The 'df_full_info_partition' already represents a partition of the df and this partition will
-        be characterized by a specific marker, a 'series_title', and 'partition_id_keys'.
+        This method will be used when "self._has_colorbar == True" add few series to
+        the plot. The different series of points will be defined according to the values
+        of the only column 'feature_to_color'. The different series will be colored
+        (and split) according to it (using 'color_list').
+        The 'df_full_info_partition' already represents a partition of the df and this
+        partition will be characterized by a specific marker, a 'series_title', and
+        'partition_id_keys'.
         @param legend_label_prefix:
-        @param df_x_y: Numpy NdArray containing the (x, y) coordinates of the points to be plotted
-        @param df_full_info_partition: A slice of pd.DataFrame containing additional values used to
-            partition the point series, to color them, and to show data with HoverTool
-        @param feature_to_color: This will be the one that define the color according to its values
+        @param df_x_y: Numpy NdArray containing the (x, y) coordinates of the points to
+            be plotted
+        @param df_full_info_partition: A slice of pd.DataFrame containing additional
+            values used to partition the point series, to color them, and to show data
+            with HoverTool
+        @param feature_to_color: This will be the one that define the color according
+            to its values
         @param color_transform_mapper_dict: In the case where
             "self._has_colorbar == True", this will be a dict (returned by the function
-             bokeh.models.transform) which contains a mapping between the elements in 'feature_to_color'
-             of the source and the colors in the ColorBar.This is the list of colors to be used to distinguish
-            'feature_to_color' values
+            bokeh.models.transform) which contains a mapping between the elements in
+            'feature_to_color' of the source and the colors in the ColorBar. This is the
+            list of colors to be used to distinguish 'feature_to_color' values
         @param marker: Type of marker to be used
         @param marker_size: Size of marker to be used
-        @param partition_id_keys: Tuple[int] -> Tuple of integer keys that identify different partitions.
-            It will be used to pick a specific marker from Enum.MARKERS_DICT. If there is no
-            partition, a '0' tuple will be set dy default, so the first marker from
-            Enum.MARKERS_DICT will be used
-        @param markers_dict: Dict -> This is a Dict tree containing integer as keys and values for every layer,
-            except the lowest layer where we have the names of the markers that can be used by bokeh.
-            (e.g. see Enum.MARKERS_DICT). By default this is set to Enums.MARKERS_DICT
+        @param partition_id_keys: Tuple[int] -> Tuple of integer keys that identify
+            different partitions. It will be used to pick a specific marker from
+            Enum.MARKERS_DICT. If there is no partition, a '0' tuple will be set dy
+            default, so the first marker from Enum.MARKERS_DICT will be used
+        @param markers_dict: Dict -> This is a Dict tree containing integer as keys and
+            values for every layer, except the lowest layer where we have the names of
+            the markers that can be used by bokeh. (e.g. see Enum.MARKERS_DICT).
+            By default this is set to Enums.MARKERS_DICT
         @param legend_label_prefix: Prefix for the series names in the legend (to be
             distinguishable by other series)
         @param series_legend_label: str -> Title of the serie
@@ -509,8 +545,9 @@ class UmapBokeh:
         if marker is None:
             if partition_id_keys is None:
                 logging.error(
-                    "You must provide a marker or a partition_id_keys which will be used "
-                    "to get a marker from Enum.MARKERS_DICT or markers_dict argument"
+                    "You must provide a marker or a partition_id_keys which will"
+                    " be used to get a marker from Enum.MARKERS_DICT or markers_dict "
+                    "argument"
                 )
             else:
                 # Get a marker based on the partition
@@ -570,34 +607,42 @@ class UmapBokeh:
         legend_label_prefix: str = "",
     ):
         """
-        This method will add some series to the plot. The different series of points will be defined
-        according to the values of the columns 'features_to_partitioned_series'. These series will be
-        distinguished by different markers and they will also be colored (and split) only
-        according to column 'feature_to_color'.
+        This method will add some series to the plot. The different series of points
+        will be defined according to the values of the columns
+        'features_to_partitioned_series'. These series will be
+        distinguished by different markers and they will also be colored (and split)
+        only according to column 'feature_to_color'.
 
-        @param df_info: DataFrameWithInfo instance containing additional values used to partition the point
-            series, to color them, and to show data with HoverTool
-        @param embedding: pd.DataFrame containing the (x, y) values of the points to be plotted
-        @param feature_to_color: This will be the df_info column (str) that define the color of the series
-            according to its values (the colors can be listed by color_list argument
-        @param multi_marker_feats: These column_names/features will be used to define different
-            series of points (described and listed in legend). Their unique values combination will define
-            different partitions that will be distinguishable by markers or colors.
+        @param df_info: DataFrameWithInfo instance containing additional values used to
+            partition the point series, to color them, and to show data with HoverTool
+        @param embedding: pd.DataFrame containing the (x, y) values of the points to be
+            plotted
+        @param feature_to_color: This will be the df_info column (str) that define the
+            color of the series according to its values (the colors can be listed by
+            color_list argument
+        @param multi_marker_feats: These column_names/features will be used to define
+            different series of points (described and listed in legend). Their unique
+            values combination will define different partitions that will be
+            distinguishable by markers or colors.
         @param enc_value_to_str_map_multi_feat: Dict[Dict]
-            This is a map to connect the encoded values to the original ones. It will be a Dict of Dicts
-            because the first level keys identify the features with encoded values, and the second level
-            dict is the actual map
-        @param group_values_to_be_shown: Tuple[str, Tuple] -> This is required if you want to plot a part
-            of DataFrame as a Serie of grey points (as background), and the other part will be split in
-            partitions according to the other arguments. If you want the DataFrame to considered all together
-            with no grey/background points, do not use this argument.
-            This is a tuple where the first element is the name of the column that will be used.
-            The second element is a Tuple containing all the values that will be included in the plot.
-            The rows that have other values for that column will be plotted as grey points.
+            This is a map to connect the encoded values to the original ones. It will
+            be a Dict of Dicts because the first level keys identify the features with
+            encoded values, and the second level dict is the actual map
+        @param group_values_to_be_shown: Tuple[str, Tuple] -> This is required if you
+            want to plot a part of DataFrame as a Serie of grey points (as background),
+            and the other part will be split in partitions according to the other
+            arguments. If you want the DataFrame to considered all together with no
+            grey/background points, do not use this argument. This is a tuple where the
+            first element is the name of the column that will be used. The second element
+            is a Tuple containing all the values that will be included in the plot.
+            The rows that have other values for that column will be plotted as grey
+            points.
              E.g. ('BREED', ('LABRADOR RETRIEVER', 'MONGREL'))
-        @param color_list: This is the list of colors to be used to distinguish 'feature_to_color' values
+        @param color_list: This is the list of colors to be used to distinguish
+            'feature_to_color' values
         @param title: str -> Title of the plot
-        @param legend_location: str -> Location of the legend in the plot. Default set to 'bottom_left'
+        @param legend_location: str -> Location of the legend in the plot. Default set
+            to 'bottom_left'
         @param legend_label_prefix: Prefix for the series names in the legend (to be
             distinguishable by other series)
         @param tooltip_feats:
@@ -622,7 +667,8 @@ class UmapBokeh:
                 "The feature is not Numerical, so the UMAP algorithm cannot proceed"
             )
         # ===========================================
-        # STEP 1. Split df_info between the group_values that need to be shown or not (if required),
+        # STEP 1. Split df_info between the group_values that need to be shown or not
+        #         (if required),
         #         show all otherwise
         # ===========================================
         if group_values_to_be_shown[0] is None:
@@ -671,7 +717,8 @@ class UmapBokeh:
         )
 
         if self._has_colorbar:
-            # CASE 1: Distinguish partitions (according to feature_to_color) by color in colorbar
+            # CASE 1: Distinguish partitions (according to feature_to_color) by color in
+            # colorbar
             self._add_single_feature_scatter_series_with_colorbar(
                 df_x_y=embedding,
                 df_full_info_partition=selected_group_df,
@@ -716,8 +763,9 @@ class UmapBokeh:
         multi_series_feats,
     ):
         """
-        It sets the class attribute 'self._tooltip_feats' using the features for the partition and
-        additional features provided
+        It sets the class attribute 'self._tooltip_feats' using the features for the
+        partition and additional features provided
+
         Parameters
         ----------
         tooltip_feats
@@ -734,8 +782,8 @@ class UmapBokeh:
 
     def _get_hover_tooltips(self, tooltips):
         """
-        If 'tooltips' is provided, it uses them to create a HoverTool instance and return it.
-        Otherwise, it uses 'self._tooltip_feats' and it does the same.
+        If 'tooltips' is provided, it uses them to create a HoverTool instance and
+        return it. Otherwise, it uses 'self._tooltip_feats' and it does the same.
         """
         if tooltips is None:
             hover = get_hover_tool(tooltip_feats=tuple(self._tooltip_feats))
@@ -818,7 +866,8 @@ if __name__ == "__main__":
     #     df_full_feat=train_notna_full_features_df,
     #     n_neighbors=50,  # [5, 15, 50, 100],
     #     min_dist=0.03,  # [0.01, 0.1, 1],
-    #     group_values_to_be_shown=('BREED', (tuple(['MONGREL']), tuple(['LABRADOR RETRIEVER']))),
+    #     group_values_to_be_shown=('BREED', (tuple(['MONGREL']),
+    #                     tuple(['LABRADOR RETRIEVER']))),
     #     # ['GERMAN SHEPHERD'], ['GOLDEN RETRIEVER']],
     #     feature_to_color='AGE_bin_id',
     #     multi_feat_to_combine_partit_list=('SEX', 'SEXUAL STATUS'),

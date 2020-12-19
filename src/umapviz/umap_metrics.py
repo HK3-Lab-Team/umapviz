@@ -124,10 +124,14 @@ def tanimoto_gower_old(
         b {np.ndarray} -- 1d array of features
 
     Keyword Arguments:
-        boolean_features {np.ndarray} -- array of indices for boolean features (default: {None})
-        categorical_features {np.ndarray} -- array of indices for categorical features (default: {None})
-        numerical_features {np.ndarray} -- array of indices for numerical features (default: {None})
-        feature_weights {np.ndarray} -- array of weights for features (to be used in gower) (default: {None})
+        boolean_features {np.ndarray} -- array of indices for boolean features
+            (default: {None})
+        categorical_features {np.ndarray} -- array of indices for categorical features
+            (default: {None})
+        numerical_features {np.ndarray} -- array of indices for numerical features
+            (default: {None})
+        feature_weights {np.ndarray} -- array of weights for features (to be used in gower)
+            (default: {None})
 
     Returns:
         float -- Combined Product metric distance
@@ -157,7 +161,8 @@ def tanimoto_gower_old(
         weights = feature_weights[numerical_features]
         gw_num_dist = gower_dist_numerical_old(a_m, b_m, weights)
 
-    # Complete Gower Distance in case both Numerical and Categorical features are provided
+    # Complete Gower Distance in case both Numerical and Categorical features are
+    # provided
     if catf_in and numf_in:
         weights = feature_weights[np.hstack((categorical_features, numerical_features))]
         gower_dist = (gw_cat_dist + gw_num_dist) / weights.sum()
@@ -254,10 +259,14 @@ def tanimoto_gower(
         max_vals {np.ndarray} -- 1d array max values in sample
 
     Keyword Arguments:
-        boolean_features {np.ndarray} -- array of indices for boolean features (default: {None})
-        categorical_features {np.ndarray} -- array of indices for categorical features (default: {None})
-        numerical_features {np.ndarray} -- array of indices for numerical features (default: {None})
-        feature_weights {np.ndarray} -- array of weights for features (to be used in gower) (default: {None})
+        boolean_features {np.ndarray} -- array of indices for boolean features
+            (default: {None})
+        categorical_features {np.ndarray} -- array of indices for categorical features
+            (default: {None})
+        numerical_features {np.ndarray} -- array of indices for numerical features
+            (default: {None})
+        feature_weights {np.ndarray} -- array of weights for features (to be used in
+            gower) (default: {None})
 
     Returns:
         float -- Combined Product metric distance
@@ -283,7 +292,8 @@ def tanimoto_gower(
         weights_cat = feature_weights[categorical_features]
         gw_cat_dist = gower_dist_categorical(a_m, b_m, weights_cat)
     else:
-        # This is required because compiled by numba which would not find the declaration
+        # This is required because compiled by numba which would not find the
+        # declaration
         weights_cat = feature_weights
 
     if numf_in:
@@ -293,10 +303,12 @@ def tanimoto_gower(
         maxs = max_vals[numerical_features]
         gw_num_dist = gower_dist_numerical(a_m, b_m, weights_num, mins, maxs)
     else:
-        # This is required because compiled by numba which would not find the declaration
+        # This is required because compiled by numba which would not find the
+        # declaration
         weights_num = feature_weights
 
-    # Complete Gower Distance in case both Numerical and Categorical features are provided
+    # Complete Gower Distance in case both Numerical and Categorical features are
+    # provided
     if catf_in and numf_in:
         weights = np.hstack((weights_cat, weights_num))
         gower_dist = (gw_cat_dist + gw_num_dist) / weights.sum()
@@ -343,10 +355,14 @@ def tanimoto_gower_no_bool_weights(
 
 
     Keyword Arguments:
-        boolean_features {np.ndarray} -- array of indices for boolean features (default: {None})
-        categorical_features {np.ndarray} -- array of indices for categorical features (default: {None})
-        numerical_features {np.ndarray} -- array of indices for numerical features (default: {None})
-        feature_weights {np.ndarray} -- array of weights for features (to be used in gower) (default: {None})
+        boolean_features {np.ndarray} -- array of indices for boolean features
+            (default: {None})
+        categorical_features {np.ndarray} -- array of indices for categorical features
+            (default: {None})
+        numerical_features {np.ndarray} -- array of indices for numerical features
+            (default: {None})
+        feature_weights {np.ndarray} -- array of weights for features (to be used in
+            gower) (default: {None})
 
     Returns:
         float -- Combined Product metric distance
@@ -371,7 +387,8 @@ def tanimoto_gower_no_bool_weights(
         weights_cat = feature_weights[categorical_features]
         gw_cat_dist = gower_dist_categorical(a_m, b_m, weights_cat)
     else:
-        # This is required because compiled by numba which would not find the declaration
+        # This is required because compiled by numba which would not find the
+        # declaration
         weights_cat = feature_weights
 
     if numf_in:
@@ -381,10 +398,12 @@ def tanimoto_gower_no_bool_weights(
         maxs = max_vals[numerical_features]
         gw_num_dist = gower_dist_numerical(a_m, b_m, weights_num, mins, maxs)
     else:
-        # This is required because compiled by numba which would not find the declaration
+        # This is required because compiled by numba which would not find the
+        # declaration
         weights_num = feature_weights
 
-    # Complete Gower Distance in case both Numerical and Categorical features are provided
+    # Complete Gower Distance in case both Numerical and Categorical features are
+    # provided
     if catf_in and numf_in:
         weights = np.hstack((weights_cat, weights_num))
         gower_dist = (gw_cat_dist + gw_num_dist) / weights.sum()
